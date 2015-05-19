@@ -22,6 +22,7 @@
 #
 #
 # To Upload to PyPI by executing:
+# python3 setup.py register
 # python3 setup.py bdist_egg sdist --formats=bztar,gztar,zip upload --sign
 
 
@@ -40,7 +41,7 @@ def find_this(search, filename=MODULE_PATH):
     """Take a string and a filename path string and return the found value."""
     if not search:
         return
-    for line in open(str(filename)).readlines():
+    for line in open(str(filename), encoding="utf-8").readlines():
         if search.lower() in line.lower():
             line = line.split("=")[1].strip()
             if "'" in line or '"' in line or '"""' in line:
