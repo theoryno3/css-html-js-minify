@@ -41,7 +41,7 @@ def find_this(search, filename=MODULE_PATH):
     """Take a string and a filename path string and return the found value."""
     if not search:
         return
-    for line in open(str(filename), encoding="utf-8").readlines():
+    for line in open(str(filename)).readlines():
         if search.lower() in line.lower():
             line = line.split("=")[1].strip()
             if "'" in line or '"' in line or '"""' in line:
