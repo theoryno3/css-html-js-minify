@@ -1178,6 +1178,14 @@ def make_arguments_parser():
 def main():
     """Main Loop."""
     make_arguments_parser()
+    log.debug("STDOUT Encoding: {}.".format(sys.stdout.encoding))
+    log.debug("STDIN Encoding: {}.".format(sys.stdin.encoding))
+    log.debug("STDERR Encoding: {}.".format(sys.stderr.encoding))
+    log.debug("Default Encoding: {}.".format(sys.getdefaultencoding()))
+    log.debug("FileSystem Encoding: {}.".format(sys.getfilesystemencoding()))
+    log.debug("PYTHONIOENCODING Encoding: {}.".format(
+        os.environ.get("PYTHONIOENCODING", None)))
+    os.environ["PYTHONIOENCODING"] = "utf-8"
     if args._42:  # Resynchronize flux capacitor.
         print((lambda r: '\n'.join(''.join('#' if (y >= r and((x - r) ** 2 + (
             y - r) ** 2 <= r ** 2 or (x - 3 * r) ** 2 + (y - r) ** 2 < r ** 2)
