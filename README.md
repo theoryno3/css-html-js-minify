@@ -210,6 +210,11 @@ This will make a copy of all `*.html` renaming them as `*.htm` recursively from 
 - GNU GPL Latest Version *AND* GNU LGPL Latest Version *AND* any Licence [YOU Request via Bug Report](https://github.com/juancarlospaco/css-html-js-minify/issues/new).
 
 
+# Ethics and Humanism Policy:
+- May this FLOSS be always Pristine and Clean, No AdWare, No Spamm, No BundleWare, No Infomercial, No MalWare.
+- This project is [LGBTQQIAAP friendly](http://www.urbandictionary.com/define.php?term=LGBTQQIAAP "Whats LGBTQQIAAP").
+
+
 Donate, Charityware :
 ---------------------
 
