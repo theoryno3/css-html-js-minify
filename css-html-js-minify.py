@@ -25,7 +25,6 @@ from hashlib import sha1
 from multiprocessing import cpu_count, Pool
 from tempfile import gettempdir
 from time import sleep
-import curses
 
 try:
     from urllib import request
@@ -1102,9 +1101,6 @@ def make_arguments_parser():
                 levelno = new_args[1].levelno
                 if levelno >= 50:
                     color = '\x1b[31;5;7m\n '  # blinking red with black
-                    curses.initscr()  # flash the screen
-                    curses.flash()
-                    curses.endwin()
                 elif levelno >= 40:
                     color = '\x1b[31m'  # red
                 elif levelno >= 30:
