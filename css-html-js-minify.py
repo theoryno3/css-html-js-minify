@@ -15,6 +15,7 @@ import logging as log
 import os
 import re
 import sys
+import socket
 from argparse import ArgumentParser
 from copy import copy
 from ctypes import byref, cdll, create_string_buffer
@@ -1171,6 +1172,8 @@ def make_arguments_parser():
                         help="Command to execute before run (Experimental).")
     parser.add_argument('--watch', action='store_true',
                         help="Re-Compress if file changes (Experimental).")
+    parser.add_argument('--multiple', action='store_true',
+                        help="Allow Multiple instances (Not Recommended).")
     parser.add_argument('--_42', action='store_true')
     global args
     args = parser.parse_args()
@@ -1185,6 +1188,23 @@ def main():
         ) or (y < r and x + r < y and x - r > 4 * r - y) else '.' for x in
             range(4 * r)) for y in range(1, 3 * r, 2)))(9) +
             "\n! ti htiw laeD ........####################........\n"[::-1])
+    if not args.multiple:
+        try:  # Single instance app ~crossplatform, uses udp socket.
+            log.info("Creating Abstract UDP Socket Lock for Single Instance.")
+            __lock = socket.socket(
+                socket.AF_UNIX if sys.platform.startswith("linux")
+                else socket.AF_INET, socket.SOCK_STREAM)
+            __lock.bind(
+                "\0_css-html-js-minify__lock"
+                if sys.platform.startswith("linux") else ("127.0.0.1", 8888))
+            log.info("Socket Lock for Single Instance: {}.".format(__lock))
+        except socket.error as e:
+            log.warning(("Socket Lock exists,use --multiple to unlock multiple"
+                         " instances,or kill other instances,or reboot."))
+            sys.exit(("CSS-HTML-JS-Minify is already running !, "
+                      "({e}, Reboot can Fix it). Exiting...").format(e=e))
+    else:  # if multiple instance want to touch same file bad things can happen
+        log.warning("Multiple instance on same file can cause Race Condition.")
     if only_on_py3((args.checkupdates, request)):
         check_for_updates()
     if args.tests:
@@ -1210,7 +1230,7 @@ def main():
         list_of_files = str(args.fullpath)
         process_single_css_file(args.fullpath)
     elif os.path.isfile(args.fullpath) and args.fullpath.endswith(
-        ".html" if args.overwrite else ".htm"):
+            ".html" if args.overwrite else ".htm"):
         log.info("Target is HTM{} File.".format("L" if args.overwrite else ""))
         list_of_files = str(args.fullpath)
         process_single_html_file(args.fullpath)
