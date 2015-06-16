@@ -454,11 +454,11 @@ def unquote_selectors(css):
     return re.compile('([a-zA-Z]+)="([a-zA-Z0-9-_\.]+)"]').sub(r'\1=\2]', css)
 
 
-def css_minify(css, wrap=False, comments=False):
+def css_minify(css, wrap=False, comments=False, sort=False):
     """Minify CSS main function."""
     log.info("Compressing CSS...")
     css = remove_comments(css) if not comments else css
-    css = sort_properties(css)
+    css = sort_properties(css) if sort else css
     css = unquote_selectors(css)
     css = condense_whitespace(css)
     css = remove_url_quotes(css)
@@ -950,8 +950,8 @@ def process_single_css_file(css_file_path):
         with open(css_file_path) as css_file:
             original_css = css_file.read()
     log.debug("INPUT: Reading CSS file {}.".format(css_file_path))
-    minified_css = css_minify(original_css,
-                              wrap=args.wrap, comments=args.comments)
+    minified_css = css_minify(original_css, wrap=args.wrap,
+                              comments=args.comments, sort=args.sort)
     if args.timestamp:
         taim = "/* {} */ ".format(datetime.now().isoformat()[:-7].lower())
         minified_css = taim + minified_css
@@ -1162,6 +1162,8 @@ def make_arguments_parser():
                         help="Add SHA1 HEX-Digest 11chars Hash to Filenames.")
     parser.add_argument('--gzip', action='store_true',
                         help="GZIP Minified files as '*.gz', CSS/JS only.")
+    parser.add_argument('--sort', action='store_true',
+                        help="Alphabetically Sort CSS Properties, CSS only.")
     parser.add_argument('--comments', action='store_true',
                         help="Keep comments, CSS/HTML only (Not Recommended)")
     parser.add_argument('--overwrite', action='store_true',
