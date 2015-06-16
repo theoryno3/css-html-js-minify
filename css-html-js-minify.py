@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 
@@ -41,13 +41,13 @@ except ImportError:
     resource = None
 
 
-__version__ = "1.0.14"
-__license__ = "GPLv3+ LGPLv3+"
-__author__ = "Juan Carlos"
-__email__ = "juancarlospaco@gmail.com"
-__url__ = "https://github.com/juancarlospaco/css-html-js-minify"
-__source__ = ("https://raw.githubusercontent.com/juancarlospaco/"
-              "css-html-js-minify/master/css-html-js-minify.py")
+__version__ = '1.0.14'
+__license__ = 'GPLv3+ LGPLv3+'
+__author__ = 'Juan Carlos'
+__email__ = 'juancarlospaco@gmail.com'
+__url__ = 'https://github.com/juancarlospaco/css-html-js-minify'
+__source__ = ('https://raw.githubusercontent.com/juancarlospaco/'
+              'css-html-js-minify/master/css-html-js-minify.py')
 
 
 EXTENDED_NAMED_COLORS, start_time = {  # 'Color Name String': (R, G, B)
@@ -105,6 +105,7 @@ EXTENDED_NAMED_COLORS, start_time = {  # 'Color Name String': (R, G, B)
     'thistle': (216, 191, 216), 'tomato': (255, 99, 71),
     'turquoise': (64, 224, 208), 'violet': (238, 130, 238),
     'wheat': (245, 222, 179)}, datetime.now()
+
 CSS_PROPS_TEXT = '''alignment-adjust alignment-baseline animation
 animation-delay animation-direction animation-duration
 animation-iteration-count animation-name animation-play-state
