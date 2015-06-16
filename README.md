@@ -26,7 +26,7 @@ positional arguments:
 
 optional arguments:
   -h, --help       show this help message and exit
-  --version        show program's version number and exit
+  --version        show programs version number and exit
   --wrap           Wrap output to ~80 chars per line, CSS only.
   --prefix PREFIX  Prefix string to prepend on output filenames.
   --timestamp      Add a Time Stamp on all CSS/JS output files.
@@ -61,7 +61,7 @@ runs.
 - Set its own Process name and show up on Process lists.
 - Can check for updates for itself.
 - Full Unicode/UTF-8 support.
-- Smooth CPU usage.
+- Smooth CPU usage, Single Instance Checking.
 - Can Obfuscate, GZIP and Hash files, also Watch for changes on files.
 - Can execute arbitrary commands after and before running.
 - `*.css` files are saved as `*.min.css`, `*.js` are saved as `*.min.js`, `*.htm` are saved as `*.html`
