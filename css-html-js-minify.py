@@ -398,7 +398,7 @@ def wrap_css_lines(css, line_length=80):
 def condense_font_weight(css):
     """Condense multiple font weights into shorter integer equals."""
     log.debug("Condensing font weights on values.")
-    return css.replace(':normal;', ':400;').replace(':bold;', ':700;')
+    return css.replace('font-weight:normal;', 'font-weight:400;').replace('font-weight:bold;', 'font-weight:700;')
 
 
 def condense_std_named_colors(css):
