@@ -24,6 +24,7 @@ from doctest import testmod
 from hashlib import sha1
 from multiprocessing import cpu_count, Pool
 from tempfile import gettempdir
+import traceback
 from time import sleep
 
 try:
@@ -1077,12 +1078,48 @@ def check_working_folder(folder_to_check):
     # What if destination folder is not Writable by the user.
     elif not os.access(folder_to_check, os.W_OK):
         log.critical("Folder {} Not Writable !.".format(folder_to_check))
-    if disk_usage:
+    if disk_usage and os.path.exists(folder_to_check):
         hdd = int(disk_usage(folder_to_check).free / 1024 / 1024 / 1024)
         if hdd:  # > 1 Gb
             log.info("Total Free Space: ~{} GigaBytes.".format(hdd))
         else:  # < 1 Gb
             log.critical("Total Free Space is < 1 GigaByte; Epic Fail !.")
+
+
+def log_exception():
+    """Log Exceptions but pretty printing with more info."""
+    unfriendly_names = {"<module>": "Unnamed Anonymous Module Function",
+                        "<stdin>": "System Standard Input Function"}
+    tb = sys.exc_info()[2]
+    while 1:
+        if not tb.tb_next:
+            break
+        tb = tb.tb_next
+    stack = []
+    f = tb.tb_frame
+    while f:
+        stack.append(f)
+        f = f.f_back
+    stack.reverse()
+    traceback.print_exc()
+    log.debug("########################## D E B U G #########################")
+    log.debug("Listing all Locals by context frame,ordered by innermost last:")
+    for frame in stack:
+        if frame.f_code.co_name in unfriendly_names.keys():
+            fun = unfriendly_names[frame.f_code.co_name]
+        else:
+            fun = "Function {0}()".format(frame.f_code.co_name)
+        log.debug(" ")
+        log.debug("The {nm} from file {fl} at line {ln} failed!.".format(
+            nm=fun, fl=frame.f_code.co_filename, ln=frame.f_lineno))
+        log.debug("    {}".format(fun))
+        log.debug("    |")
+        for key, value in frame.f_locals.items():
+            log.debug("    |__ {key} = {val}  # Type: {tipe},ID: {i}".format(
+                key=key, val=repr(value)[:50], tipe=type(value), i=id(value)))
+    log.debug(" ")
+    log.debug(" Thats all we know about the error, check the LOG file.")
+    log.debug("########################## D E B U G #########################")
 
 
 def make_arguments_parser():
@@ -1200,6 +1237,7 @@ def main():
                 if sys.platform.startswith("linux") else ("127.0.0.1", 8888))
             log.info("Socket Lock for Single Instance: {}.".format(__lock))
         except socket.error as e:
+            log_exception()
             log.warning(("Socket Lock exists,use --multiple to unlock multiple"
                          " instances,or kill other instances,or reboot."))
             sys.exit(("CSS-HTML-JS-Minify is already running !, "
