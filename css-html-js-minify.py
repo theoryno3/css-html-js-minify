@@ -1131,6 +1131,8 @@ def make_arguments_parser():
         libc.prctl(15, byref(buff), 0, 0, 0)
     except Exception:
         pass  # this may fail on windows and its normal, so be silent.
+    if not os.geteuid():  # root check, dont run as root
+        log.critical("Runing as root is not Recommended, do NOT Run as root!.")
     parser = ArgumentParser(description=__doc__, epilog="""CSS-HTML-JS-Minify:
     Takes a file or folder full path string and process all CSS/HTML/JS found.
     If argument is not file/folder will fail. Check Updates works on Python3.
