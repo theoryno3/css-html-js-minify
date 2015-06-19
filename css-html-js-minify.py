@@ -1232,7 +1232,7 @@ def make_logger(name=str(os.getpid())):
     try:
         handler = logging.handlers.SysLogHandler(address=adrs)
     except:
-        log.warning("Unix SysLog Server not found,ignored Logging to SysLog.")
+        log.debug("Unix SysLog Server not found,ignored Logging to SysLog.")
     else:
         logger.addHandler(handler)
     log.debug("Logger created with Log file at: {0}.".format(log_file))
