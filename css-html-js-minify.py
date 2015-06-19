@@ -14,17 +14,20 @@ import itertools
 import logging as log
 import os
 import re
-import sys
 import socket
+import sys
+import traceback
 from argparse import ArgumentParser
 from copy import copy
 from ctypes import byref, cdll, create_string_buffer
 from datetime import datetime
 from doctest import testmod
+from getpass import getuser
 from hashlib import sha1
-from multiprocessing import cpu_count, Pool
+from multiprocessing import Pool, cpu_count
+from platform import platform, python_version
+from random import randint
 from tempfile import gettempdir
-import traceback
 from time import sleep
 
 try:
@@ -1066,30 +1069,35 @@ def only_on_py3(boolean_argument=True):
         return False
 
 
-def check_working_folder(folder_to_check):
-    """Check destination folder."""
-    log.debug("Checking the Working Folder: {}.".format(folder_to_check))
+def check_working_folder(folder_to_check=os.path.expanduser("~")):
+    """Check working folder."""
+    log.debug("Checking the Working Folder: '{0}'".format(folder_to_check))
+    # What if folder is not a string.
+    if not isinstance(folder_to_check, str) :
+        log.critical("Folder {0} is not String type!.".format(folder_to_check))
+        return
     # What if folder is not a folder.
-    if not os.path.isdir(folder_to_check):
-        log.critical("Folder {} does not exist !.".format(folder_to_check))
+    elif not os.path.isdir(folder_to_check):
+        log.critical("Folder {0} does not exist !.".format(folder_to_check))
     # What if destination folder is not Readable by the user.
     elif not os.access(folder_to_check, os.R_OK):
-        log.critical("Folder {} not Readable !.".format(folder_to_check))
+        log.critical("Folder {0} not Readable !.".format(folder_to_check))
     # What if destination folder is not Writable by the user.
     elif not os.access(folder_to_check, os.W_OK):
-        log.critical("Folder {} Not Writable !.".format(folder_to_check))
-    if disk_usage and os.path.exists(folder_to_check):
+        log.critical("Folder {0} Not Writable !.".format(folder_to_check))
+    elif disk_usage and os.path.exists(folder_to_check):
         hdd = int(disk_usage(folder_to_check).free / 1024 / 1024 / 1024)
         if hdd:  # > 1 Gb
-            log.info("Total Free Space: ~{} GigaBytes.".format(hdd))
+            log.info("Total Free Space: ~{0} GigaBytes.".format(hdd))
         else:  # < 1 Gb
             log.critical("Total Free Space is < 1 GigaByte; Epic Fail !.")
 
 
 def log_exception():
-    """Log Exceptions but pretty printing with more info."""
+    """Log Exceptions but pretty printing more info.Use inside except."""
     unfriendly_names = {"<module>": "Unnamed Anonymous Module Function",
                         "<stdin>": "System Standard Input Function"}
+    template = "    |___ {key} = {val}  # Type: {t}, Size: {s}Bytes, ID: {i}."
     tb = sys.exc_info()[2]
     while 1:
         if not tb.tb_next:
@@ -1115,15 +1123,73 @@ def log_exception():
         log.debug("    {}".format(fun))
         log.debug("    |")
         for key, value in frame.f_locals.items():
-            log.debug("    |__ {key} = {val}  # Type: {tipe},ID: {i}".format(
-                key=key, val=repr(value)[:50], tipe=type(value), i=id(value)))
+            log.debug(template.format(
+                key=key, val=repr(value)[:50], t=str(type(value))[:25],
+                s=sys.getsizeof(key), i=id(value)))
     log.debug(" ")
     log.debug(" Thats all we know about the error, check the LOG file.")
     log.debug("########################## D E B U G #########################")
 
 
-def make_arguments_parser():
-    """Build and return a command line agument parser."""
+def make_root_check_and_encoding_debug():
+    """Set process name and cpu priority, also root check."""
+    log.info(__doc__ + __version__)  # version en encodings debug
+    log.debug("Python {0} on {1}.".format(python_version(), platform()))
+    log.debug("STDOUT Encoding: {0}.".format(sys.stdout.encoding))
+    log.debug("STDIN Encoding: {0}.".format(sys.stdin.encoding))
+    log.debug("STDERR Encoding: {0}.".format(sys.stderr.encoding))
+    log.debug("Default Encoding: {0}.".format(sys.getdefaultencoding()))
+    log.debug("FileSystem Encoding: {0}.".format(sys.getfilesystemencoding()))
+    log.debug("PYTHONIOENCODING Encoding: {0}.".format(
+        os.environ.get("PYTHONIOENCODING", None)))
+    os.environ["PYTHONIOENCODING"] = "utf-8"
+    if not sys.platform.startswith("win"):  # root check
+        if not os.geteuid():
+            log.critical("Runing as root is not Recommended,NOT Run as root!.")
+    elif sys.platform.startswith("win"):  # administrator check
+        if getuser().lower().startswith("admin"):
+            log.critical("Runing as Administrator is not Recommended!.")
+
+
+def set_process_name_and_cpu_priority(name):
+    """Set process name and cpu priority, also root check."""
+    try:
+        os.nice(19)  # smooth cpu priority
+        libc = cdll.LoadLibrary("libc.so.6")  # set process name
+        buff = create_string_buffer(len(name.lower().strip()) + 1)
+        buff.value = bytes(name.lower().strip().encode("utf-8"))
+        libc.prctl(15, byref(buff), 0, 0, 0)
+    except Exception:
+        pass  # this may fail on windows and its normal, so be silent.
+    else:
+        log.debug("Process Name set to: {0}.".format(name))
+
+
+def set_single_instance(single_instance=True, port=8888):
+    """Set process name and cpu priority, also root check."""
+    if single_instance:
+        try:  # Single instance app ~crossplatform, uses udp socket.
+            log.info("Creating Abstract UDP Socket Lock for Single Instance.")
+            __lock = socket.socket(
+                socket.AF_UNIX if sys.platform.startswith("linux")
+                else socket.AF_INET, socket.SOCK_STREAM)
+            __lock.bind(
+                "\0_css-html-js-minify__lock"
+                if sys.platform.startswith("linux") else ("127.0.0.1", port))
+        except socket.error as e:
+            log_exception() if log_exception else log.warning(e)
+            log.warning(("Socket Lock exists,use --multiple to unlock multiple"
+                         " instances,or kill other instances,or reboot."))
+            sys.exit(("CSS-HTML-JS-Minify is already running !, "
+                      "({e}, Reboot can Fix it). Exiting...").format(e=e))
+        else:
+            log.info("Socket Lock for Single Instance: {}.".format(__lock))
+    else:  # if multiple instance want to touch same file bad things can happen
+        log.warning("Multiple instance on same file can cause Race Condition.")
+
+
+def make_logger(name=str(os.getpid())):
+    """Build and return a Logging Logger."""
     if not sys.platform.startswith("win") and sys.stderr.isatty():
         def add_color_emit_ansi(fn):
             """Add methods we need to the class."""
@@ -1156,20 +1222,38 @@ def make_arguments_parser():
             return new
         # all non-Windows platforms support ANSI Colors so we use them
         log.StreamHandler.emit = add_color_emit_ansi(log.StreamHandler.emit)
-    log.basicConfig(
-        level=-1, format="%(levelname)s:%(asctime)s %(message)s", filemode="w",
-        filename=os.path.join(gettempdir(), "css-html-js-minify.log"))
+    else:
+        log.debug("Colored Logs not supported on {0}.".format(sys.platform))
+    log_file = os.path.join(gettempdir(), str(name).lower().strip() + ".log")
+    log.basicConfig(level=-1, filemode="w", filename=log_file,
+                    format="%(levelname)s:%(asctime)s %(message)s %(lineno)s")
     log.getLogger().addHandler(log.StreamHandler(sys.stderr))
+    adrs = "/dev/log" if sys.platform.startswith("lin") else "/var/run/syslog"
     try:
-        os.nice(19)  # smooth cpu priority
-        libc = cdll.LoadLibrary('libc.so.6')  # set process name
-        buff = create_string_buffer(len("css-html-js-minify") + 1)
-        buff.value = bytes("css-html-js-minify".encode("utf-8"))
-        libc.prctl(15, byref(buff), 0, 0, 0)
-    except Exception:
-        pass  # this may fail on windows and its normal, so be silent.
-    if not sys.platform.startswith("win") and not os.geteuid():  # root check
-        log.critical("Runing as root is not Recommended, do NOT Run as root!.")
+        handler = logging.handlers.SysLogHandler(address=adrs)
+    except:
+        log.warning("Unix SysLog Server not found,ignored Logging to SysLog.")
+    else:
+        logger.addHandler(handler)
+    log.debug("Logger created with Log file at: {0}.".format(log_file))
+    return log
+
+
+def make_post_execution_message(app=__doc__.splitlines()[0].strip()):
+    """We cant pay our own Marketing, so..."""
+    log.info("Total Maximum RAM Memory used: ~{0} MegaBytes.".format(int(
+        resource.getrusage(resource.RUSAGE_SELF).ru_maxrss *
+        resource.getpagesize() / 1024 / 1024 if resource else 0)))
+    log.info("Total Working Time: {0}.".format(datetime.now() - start_time))
+    if randint(0, 100) < 25:  # ~25% chance to see the message,dont get on logs
+        print("Thanks for using this App,share your experience!{0}".format("""
+        Twitter: https://twitter.com/home?status=I%20Like%20{n}!:%20{u}
+        Facebook: https://www.facebook.com/share.php?u={u}&t=I%20Like%20{n}
+        G+: https://plus.google.com/share?url={u}""".format(u=__url__, n=app)))
+
+
+def make_arguments_parser():
+    """Build and return a command line agument parser."""
     parser = ArgumentParser(description=__doc__, epilog="""CSS-HTML-JS-Minify:
     Takes a file or folder full path string and process all CSS/HTML/JS found.
     If argument is not file/folder will fail. Check Updates works on Python3.
@@ -1220,48 +1304,25 @@ def make_arguments_parser():
 def main():
     """Main Loop."""
     make_arguments_parser()
+    make_logger("css-html-js-minify")
+    make_root_check_and_encoding_debug()
+    set_process_name_and_cpu_priority("css-html-js-minify")
+    set_single_instance()
     if args._42:  # Resynchronize flux capacitor.
         print((lambda r: '\n'.join(''.join('#' if (y >= r and((x - r) ** 2 + (
             y - r) ** 2 <= r ** 2 or (x - 3 * r) ** 2 + (y - r) ** 2 < r ** 2)
         ) or (y < r and x + r < y and x - r > 4 * r - y) else '.' for x in
             range(4 * r)) for y in range(1, 3 * r, 2)))(9) +
             "\n! ti htiw laeD ........####################........\n"[::-1])
-    if not args.multiple:
-        try:  # Single instance app ~crossplatform, uses udp socket.
-            log.info("Creating Abstract UDP Socket Lock for Single Instance.")
-            __lock = socket.socket(
-                socket.AF_UNIX if sys.platform.startswith("linux")
-                else socket.AF_INET, socket.SOCK_STREAM)
-            __lock.bind(
-                "\0_css-html-js-minify__lock"
-                if sys.platform.startswith("linux") else ("127.0.0.1", 8888))
-            log.info("Socket Lock for Single Instance: {}.".format(__lock))
-        except socket.error as e:
-            log_exception()
-            log.warning(("Socket Lock exists,use --multiple to unlock multiple"
-                         " instances,or kill other instances,or reboot."))
-            sys.exit(("CSS-HTML-JS-Minify is already running !, "
-                      "({e}, Reboot can Fix it). Exiting...").format(e=e))
-    else:  # if multiple instance want to touch same file bad things can happen
-        log.warning("Multiple instance on same file can cause Race Condition.")
     if only_on_py3((args.checkupdates, request)):
         check_for_updates()
     if args.tests:
         testmod(verbose=True, report=True, exclude_empty=True)
         sys.exit(0)
-    if only_on_py3(args.quiet):
-        log.disable(log.CRITICAL)
-    log.info(__doc__ + __version__)
-    log.debug("STDOUT Encoding: {}.".format(sys.stdout.encoding))
-    log.debug("STDIN Encoding: {}.".format(sys.stdin.encoding))
-    log.debug("STDERR Encoding: {}.".format(sys.stderr.encoding))
-    log.debug("Default Encoding: {}.".format(sys.getdefaultencoding()))
-    log.debug("FileSystem Encoding: {}.".format(sys.getfilesystemencoding()))
-    log.debug("PYTHONIOENCODING Encoding: {}.".format(
-        os.environ.get("PYTHONIOENCODING", None)))
-    os.environ["PYTHONIOENCODING"] = "utf-8"
     if only_on_py3((args.before, getoutput)):
         log.info(getoutput(str(args.before)))
+    if args and only_on_py3(args.quiet):
+        log.disable(log.CRITICAL)
     check_working_folder(os.path.dirname(args.fullpath))
     # Work based on if argument is file or folder, folder is slower.
     if os.path.isfile(args.fullpath) and args.fullpath.endswith(".css"):
@@ -1299,10 +1360,7 @@ def main():
     log.info('Files Processed: {}.'.format(list_of_files))
     log.info('Number of Files Processed: {}.'.format(
         len(list_of_files) if isinstance(list_of_files, tuple) else 1))
-    log.info('Total Maximum RAM Memory used: ~{} MegaBytes.'.format(int(
-        resource.getrusage(resource.RUSAGE_SELF).ru_maxrss *
-        resource.getpagesize() / 1024 / 1024 if resource else 0)))
-    log.info('Total Processing Time: {}.'.format(datetime.now() - start_time))
+    make_post_execution_message()
 
 
 if __name__ in '__main__':
