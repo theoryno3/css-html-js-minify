@@ -1192,7 +1192,7 @@ def set_process_name_and_cpu_priority(name):
         return True
 
 
-def set_single_instance(single_instance=True, port=8888):
+def set_single_instance(name, single_instance=True, port=8888):
     """Set process name and cpu priority, return socket.socket object or None.
 
     >>> isinstance(set_single_instance(), socket.socket)
@@ -1206,7 +1206,7 @@ def set_single_instance(single_instance=True, port=8888):
                 socket.AF_UNIX if sys.platform.startswith("linux")
                 else socket.AF_INET, socket.SOCK_STREAM)
             __lock.bind(
-                "\0_your_app_name_here__lock"
+                "\0_{name}__lock".format(str(name).lower().strip())
                 if sys.platform.startswith("linux") else ("127.0.0.1", port))
         except socket.error as e:
             log.warning(e)
@@ -1340,7 +1340,7 @@ def main():
     make_logger("css-html-js-minify")
     make_root_check_and_encoding_debug()
     set_process_name_and_cpu_priority("css-html-js-minify")
-    set_single_instance()
+    set_single_instance("css-html-js-minify")
     if args._42:  # Resynchronize flux capacitor.
         print((lambda r: '\n'.join(''.join('#' if (y >= r and((x - r) ** 2 + (
             y - r) ** 2 <= r ** 2 or (x - 3 * r) ** 2 + (y - r) ** 2 < r ** 2)
