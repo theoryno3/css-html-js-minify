@@ -1192,10 +1192,11 @@ def set_process_name_and_cpu_priority(name):
         return True
 
 
+
 def set_single_instance(name, single_instance=True, port=8888):
     """Set process name and cpu priority, return socket.socket object or None.
 
-    >>> isinstance(set_single_instance(), socket.socket)
+    >>> isinstance(set_single_instance("test"), socket.socket)
     True
     """
     __lock = None
@@ -1206,7 +1207,7 @@ def set_single_instance(name, single_instance=True, port=8888):
                 socket.AF_UNIX if sys.platform.startswith("linux")
                 else socket.AF_INET, socket.SOCK_STREAM)
             __lock.bind(
-                "\0_{name}__lock".format(str(name).lower().strip())
+                "\0_{name}__lock".format(name=str(name).lower().strip())
                 if sys.platform.startswith("linux") else ("127.0.0.1", port))
         except socket.error as e:
             log.warning(e)
