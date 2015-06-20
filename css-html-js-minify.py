@@ -1070,35 +1070,51 @@ def only_on_py3(boolean_argument=True):
 
 
 def check_working_folder(folder_to_check=os.path.expanduser("~")):
-    """Check working folder."""
+    """Check working folder,passed argument,for everything that can go wrong.
+
+    >>> check_working_folder()
+    True
+    """
     log.debug("Checking the Working Folder: '{0}'".format(folder_to_check))
     # What if folder is not a string.
     if not isinstance(folder_to_check, str) :
         log.critical("Folder {0} is not String type!.".format(folder_to_check))
-        return
+        return False
     # What if folder is not a folder.
     elif not os.path.isdir(folder_to_check):
         log.critical("Folder {0} does not exist !.".format(folder_to_check))
+        return False
     # What if destination folder is not Readable by the user.
     elif not os.access(folder_to_check, os.R_OK):
         log.critical("Folder {0} not Readable !.".format(folder_to_check))
+        return False
     # What if destination folder is not Writable by the user.
     elif not os.access(folder_to_check, os.W_OK):
         log.critical("Folder {0} Not Writable !.".format(folder_to_check))
+        return False
     elif disk_usage and os.path.exists(folder_to_check):
         hdd = int(disk_usage(folder_to_check).free / 1024 / 1024 / 1024)
         if hdd:  # > 1 Gb
             log.info("Total Free Space: ~{0} GigaBytes.".format(hdd))
+            return True
         else:  # < 1 Gb
             log.critical("Total Free Space is < 1 GigaByte; Epic Fail !.")
+            return False
+    return False
 
 
 def log_exception():
-    """Log Exceptions but pretty printing more info.Use inside except."""
+    """Log Exceptions but pretty printing with more info, return string."""
     unfriendly_names = {"<module>": "Unnamed Anonymous Module Function",
                         "<stdin>": "System Standard Input Function"}
-    template = "    |___ {key} = {val}  # Type: {t}, Size: {s}Bytes, ID: {i}."
-    tb = sys.exc_info()[2]
+    line_tpl = "    |___ {key} = {val}  # Type: {t}, Size: {s}Bytes, ID: {i}\n"
+    body_tpl = """
+    ################################ D E B U G ###############################
+    Listing all Local objects by context frame, ordered by innermost last:
+    {body}
+    Thats all we know about the error, check the LOG file and StdOut.
+    ############################### D E B U G #############################"""
+    tb, body_txt, whole_txt = sys.exc_info()[2], "", ""
     while 1:
         if not tb.tb_next:
             break
@@ -1110,34 +1126,34 @@ def log_exception():
         f = f.f_back
     stack.reverse()
     traceback.print_exc()
-    log.debug("########################## D E B U G #########################")
-    log.debug("Listing all Locals by context frame,ordered by innermost last:")
     for frame in stack:
         if frame.f_code.co_name in unfriendly_names.keys():
             fun = unfriendly_names[frame.f_code.co_name]
         else:
             fun = "Function {0}()".format(frame.f_code.co_name)
-        log.debug(" ")
-        log.debug("The {nm} from file {fl} at line {ln} failed!.".format(
-            nm=fun, fl=frame.f_code.co_filename, ln=frame.f_lineno))
-        log.debug("    {}".format(fun))
-        log.debug("    |")
+        body_txt += "\nThe {nm} from file {fl} at line {ln} failed!.".format(
+            nm=fun, fl=frame.f_code.co_filename, ln=frame.f_lineno)
+        body_txt += "\n    {}\n    |\n".format(fun)
         for key, value in frame.f_locals.items():
-            log.debug(template.format(
-                key=key, val=repr(value)[:50], t=str(type(value))[:25],
-                s=sys.getsizeof(key), i=id(value)))
-    log.debug(" ")
-    log.debug(" Thats all we know about the error, check the LOG file.")
-    log.debug("########################## D E B U G #########################")
+            whole_txt += line_tpl.format(key=key, val=repr(value)[:50],
+                                         t=str(type(value))[:25],
+                                         s=sys.getsizeof(key), i=id(value))
+    result = body_tpl.format(body=body_txt + whole_txt)
+    log.debug(result)
+    return result
 
 
 def make_root_check_and_encoding_debug():
-    """Set process name and cpu priority, also root check."""
-    log.info(__doc__ + __version__)  # version en encodings debug
+    """Debug and Log Encodings and Check for root/administrator,return Boolean.
+
+    >>> make_root_check_and_encoding_debug()
+    True
+    """
+    log.info(__doc__)
     log.debug("Python {0} on {1}.".format(python_version(), platform()))
-    log.debug("STDOUT Encoding: {0}.".format(sys.stdout.encoding))
     log.debug("STDIN Encoding: {0}.".format(sys.stdin.encoding))
     log.debug("STDERR Encoding: {0}.".format(sys.stderr.encoding))
+    log.debug("STDOUT Encoding:{}".format(getattr(sys.stdout, "encoding", "")))
     log.debug("Default Encoding: {0}.".format(sys.getdefaultencoding()))
     log.debug("FileSystem Encoding: {0}.".format(sys.getfilesystemencoding()))
     log.debug("PYTHONIOENCODING Encoding: {0}.".format(
@@ -1146,13 +1162,20 @@ def make_root_check_and_encoding_debug():
     if not sys.platform.startswith("win"):  # root check
         if not os.geteuid():
             log.critical("Runing as root is not Recommended,NOT Run as root!.")
+            return False
     elif sys.platform.startswith("win"):  # administrator check
         if getuser().lower().startswith("admin"):
             log.critical("Runing as Administrator is not Recommended!.")
+            return False
+    return True
 
 
 def set_process_name_and_cpu_priority(name):
-    """Set process name and cpu priority, also root check."""
+    """Set process name and cpu priority.
+
+    >>> set_process_name_and_cpu_priority("test_test")
+    True
+    """
     try:
         os.nice(19)  # smooth cpu priority
         libc = cdll.LoadLibrary("libc.so.6")  # set process name
@@ -1160,13 +1183,19 @@ def set_process_name_and_cpu_priority(name):
         buff.value = bytes(name.lower().strip().encode("utf-8"))
         libc.prctl(15, byref(buff), 0, 0, 0)
     except Exception:
-        pass  # this may fail on windows and its normal, so be silent.
+        return False  # this may fail on windows and its normal, so be silent.
     else:
         log.debug("Process Name set to: {0}.".format(name))
+        return True
 
 
 def set_single_instance(single_instance=True, port=8888):
-    """Set process name and cpu priority, also root check."""
+    """Set process name and cpu priority, return socket.socket object or None.
+
+    >>> isinstance(set_single_instance(), socket.socket)
+    True
+    """
+    __lock = None
     if single_instance:
         try:  # Single instance app ~crossplatform, uses udp socket.
             log.info("Creating Abstract UDP Socket Lock for Single Instance.")
@@ -1174,18 +1203,15 @@ def set_single_instance(single_instance=True, port=8888):
                 socket.AF_UNIX if sys.platform.startswith("linux")
                 else socket.AF_INET, socket.SOCK_STREAM)
             __lock.bind(
-                "\0_css-html-js-minify__lock"
+                "\0_your_app_name_here__lock"
                 if sys.platform.startswith("linux") else ("127.0.0.1", port))
         except socket.error as e:
-            log_exception() if log_exception else log.warning(e)
-            log.warning(("Socket Lock exists,use --multiple to unlock multiple"
-                         " instances,or kill other instances,or reboot."))
-            sys.exit(("CSS-HTML-JS-Minify is already running !, "
-                      "({e}, Reboot can Fix it). Exiting...").format(e=e))
+            log.warning(e)
         else:
             log.info("Socket Lock for Single Instance: {}.".format(__lock))
     else:  # if multiple instance want to touch same file bad things can happen
         log.warning("Multiple instance on same file can cause Race Condition.")
+    return __lock
 
 
 def make_logger(name=str(os.getpid())):
@@ -1240,16 +1266,20 @@ def make_logger(name=str(os.getpid())):
 
 
 def make_post_execution_message(app=__doc__.splitlines()[0].strip()):
-    """We cant pay our own Marketing, so..."""
-    log.info("Total Maximum RAM Memory used: ~{0} MegaBytes.".format(int(
-        resource.getrusage(resource.RUSAGE_SELF).ru_maxrss *
-        resource.getpagesize() / 1024 / 1024 if resource else 0)))
+    """Simple Post-Execution Message with information about RAM and Time.
+    >>> make_post_execution_message() >= 0
+    True
+    """
+    ram_use = int(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss *
+                  resource.getpagesize() / 1024 / 1024 if resource else 0)
+    log.info("Total Maximum RAM Memory used: ~{0} MegaBytes.".format(ram_use))
     log.info("Total Working Time: {0}.".format(datetime.now() - start_time))
     if randint(0, 100) < 25:  # ~25% chance to see the message,dont get on logs
         print("Thanks for using this App,share your experience!{0}".format("""
         Twitter: https://twitter.com/home?status=I%20Like%20{n}!:%20{u}
         Facebook: https://www.facebook.com/share.php?u={u}&t=I%20Like%20{n}
         G+: https://plus.google.com/share?url={u}""".format(u=__url__, n=app)))
+    return ram_use
 
 
 def make_arguments_parser():
