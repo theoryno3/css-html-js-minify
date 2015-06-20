@@ -1080,6 +1080,9 @@ def check_working_folder(folder_to_check=os.path.expanduser("~")):
     if not isinstance(folder_to_check, str) :
         log.critical("Folder {0} is not String type!.".format(folder_to_check))
         return False
+    elif os.path.isfile(folder_to_check):
+        log.info("Folder {0} is File or Relative Path".format(folder_to_check))
+        return True
     # What if folder is not a folder.
     elif not os.path.isdir(folder_to_check):
         log.critical("Folder {0} does not exist !.".format(folder_to_check))
