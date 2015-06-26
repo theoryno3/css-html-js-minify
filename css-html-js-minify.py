@@ -1260,17 +1260,18 @@ def make_logger(name=str(os.getpid())):
     log.getLogger().addHandler(log.StreamHandler(sys.stderr))
     adrs = "/dev/log" if sys.platform.startswith("lin") else "/var/run/syslog"
     try:
-        handler = logging.handlers.SysLogHandler(address=adrs)
+        handler = log.handlers.SysLogHandler(address=adrs)
     except:
         log.debug("Unix SysLog Server not found,ignored Logging to SysLog.")
     else:
-        logger.addHandler(handler)
+        log.addHandler(handler)
     log.debug("Logger created with Log file at: {0}.".format(log_file))
     return log
 
 
 def make_post_execution_message(app=__doc__.splitlines()[0].strip()):
     """Simple Post-Execution Message with information about RAM and Time.
+
     >>> make_post_execution_message() >= 0
     True
     """
