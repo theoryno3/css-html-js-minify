@@ -232,7 +232,6 @@ def _prioritify(line_buffer, pgs):
 
 def _props_grouper(props, pgs):
     """Return groups for properties."""
-    log.debug("Grouping all CSS / SCSS Properties.")
     if not props:
         return props
     props = sorted([
