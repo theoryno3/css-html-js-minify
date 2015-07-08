@@ -1296,19 +1296,19 @@ def make_logger(name=str(os.getpid())):
             return new
         # all non-Windows platforms support ANSI Colors so we use them
         log.StreamHandler.emit = add_color_emit_ansi(log.StreamHandler.emit)
+        a = "/dev/log" if sys.platform.startswith("lin") else "/var/run/syslog"
+        try:  # try to Hook Up the SysLog Server if Any.
+            handler = log.handlers.SysLogHandler(address=a)
+        except:  # SysLog Server not found
+            log.debug("Unix SysLog Server not found,ignored Logging to SysLog")
+        else:  # SysLog Server found, log to it.
+            log.addHandler(handler)
     else:
         log.debug("Colored Logs not supported on {0}.".format(sys.platform))
     log_file = os.path.join(gettempdir(), str(name).lower().strip() + ".log")
     log.basicConfig(level=-1, filemode="w", filename=log_file,
                     format="%(levelname)s:%(asctime)s %(message)s %(lineno)s")
     log.getLogger().addHandler(log.StreamHandler(sys.stderr))
-    adrs = "/dev/log" if sys.platform.startswith("lin") else "/var/run/syslog"
-    try:
-        handler = log.handlers.SysLogHandler(address=adrs)
-    except:
-        log.debug("Unix SysLog Server not found,ignored Logging to SysLog.")
-    else:
-        log.addHandler(handler)
     log.debug("Logger created with Log file at: {0}.".format(log_file))
     return log
 
