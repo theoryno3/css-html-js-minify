@@ -1075,6 +1075,7 @@ def check_working_folder(folder_to_check=os.path.expanduser("~")):
     >>> check_working_folder()
     True
     """
+    folder_to_check = os.path.abspath(folder_to_check)  # See Bug #20 on WinOS
     log.debug("Checking the Working Folder: '{0}'".format(folder_to_check))
     # What if folder is not a string.
     if not isinstance(folder_to_check, str) :
