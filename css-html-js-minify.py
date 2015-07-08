@@ -1322,7 +1322,7 @@ def make_post_execution_message(app=__doc__.splitlines()[0].strip()):
     ram_use = int(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss *
                   resource.getpagesize() / 1024 / 1024 if resource else 0)
     ram_all = int(os.sysconf('SC_PAGE_SIZE') * os.sysconf('SC_PHYS_PAGES')
-                  / 1024 / 1024)
+                  / 1024 / 1024 if sys.platform.startswith("linux") else 0)
     msg = "Total Maximum RAM Memory used: ~{0} of {1} MegaBytes.".format(
         ram_use, ram_all)
     log.info(msg)
