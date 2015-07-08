@@ -109,64 +109,105 @@ EXTENDED_NAMED_COLORS, start_time = {  # 'Color Name String': (R, G, B)
     'turquoise': (64, 224, 208), 'violet': (238, 130, 238),
     'wheat': (245, 222, 179)}, datetime.now()
 
-CSS_PROPS_TEXT = '''alignment-adjust alignment-baseline animation
-animation-delay animation-direction animation-duration
-animation-iteration-count animation-name animation-play-state
-animation-timing-function appearance azimuth backface-visibility background
-background-attachment background-clip background-color background-image
-background-origin background-position background-repeat background-size
-baseline-shift bikeshedding bookmark-label bookmark-level bookmark-state
-bookmark-target border border-bottom border-bottom-color
-border-bottom-left-radius border-bottom-right-radius border-bottom-style
-border-bottom-width border-collapse border-color border-image
-border-image-outset border-image-repeat border-image-slice border-image-source
-border-image-width border-left border-left-color border-left-style
-border-left-width border-radius border-right border-right-color
-border-right-style border-right-width border-spacing border-style border-top
-border-top-color border-top-left-radius border-top-right-radius
-border-top-style border-top-width border-width bottom box-decoration-break
-box-shadow box-sizing caption-side clear clip color column-count column-fill
-column-gap column-rule column-rule-color column-rule-style column-rule-width
-column-span column-width columns content counter-increment counter-reset cue
-cue-after cue-before cursor direction display drop-initial-after-adjust
-drop-initial-after-align drop-initial-before-adjust drop-initial-before-align
-drop-initial-size drop-initial-value elevation empty-cells fit fit-position
-float font font-family font-size font-size-adjust font-stretch font-style
-font-variant font-weight grid-columns grid-rows hanging-punctuation height
-hyphenate-character hyphenate-resource hyphens icon image-orientation
-image-resolution inline-box-align left letter-spacing line-height
-line-stacking line-stacking-ruby line-stacking-shift line-stacking-strategy
-linear-gradient list-style list-style-image list-style-position
-list-style-type margin margin-bottom margin-left margin-right margin-top
-marquee-direction marquee-loop marquee-speed marquee-style max-height
-max-width min-height min-width nav-index opacity orphans outline outline-color
-outline-offset outline-style outline-width overflow overflow-style overflow-x
-overflow-y padding padding-bottom padding-left padding-right padding-top page
+
+CSS_PROPS_TEXT = '''
+
+alignment-adjust alignment-baseline animation animation-delay
+animation-direction animation-duration animation-iteration-count
+animation-name animation-play-state animation-timing-function appearance
+azimuth
+
+backface-visibility background background-attachment background-clip
+background-color background-image background-origin background-position
+background-repeat background-size baseline-shift bikeshedding bookmark-label
+bookmark-level bookmark-state bookmark-target border border-bottom
+border-bottom-color border-bottom-left-radius border-bottom-right-radius
+border-bottom-style border-bottom-width border-collapse border-color
+border-image border-image-outset border-image-repeat border-image-slice
+border-image-source border-image-width border-left border-left-color
+border-left-style border-left-width border-radius border-right
+border-right-color border-right-style border-right-width border-spacing
+border-style border-top border-top-color border-top-left-radius
+border-top-right-radius border-top-style border-top-width border-width bottom
+box-decoration-break box-shadow box-sizing
+
+caption-side clear clip color column-count column-fill column-gap column-rule
+column-rule-color column-rule-style column-rule-width column-span column-width
+columns content counter-increment counter-reset cue cue-after cue-before
+cursor
+
+direction display drop-initial-after-adjust drop-initial-after-align
+drop-initial-before-adjust drop-initial-before-align drop-initial-size
+drop-initial-value
+
+elevation empty-cells
+
+fit fit-position float font font-family font-size font-size-adjust
+font-stretch font-style font-variant font-weight
+
+grid-columns grid-rows
+
+hanging-punctuation height hyphenate-character hyphenate-resource hyphens
+
+icon image-orientation image-resolution inline-box-align
+
+left letter-spacing line-height line-stacking line-stacking-ruby
+line-stacking-shift line-stacking-strategy linear-gradient list-style
+list-style-image list-style-position list-style-type
+
+margin margin-bottom margin-left margin-right margin-top marquee-direction
+marquee-loop marquee-speed marquee-style max-height max-width min-height
+min-width
+
+nav-index
+
+opacity orphans outline outline-color outline-offset outline-style
+outline-width overflow overflow-style overflow-x overflow-y
+
+padding padding-bottom padding-left padding-right padding-top page
 page-break-after page-break-before page-break-inside pause pause-after
 pause-before perspective perspective-origin pitch pitch-range play-during
-position presentation-level quotes resize rest rest-after rest-before richness
-right rotation rotation-point ruby-align ruby-overhang ruby-position ruby-span
-size speak speak-header speak-numeral speak-punctuation speech-rate src stress
-string-set table-layout target target-name target-new target-position
-text-align text-align-last text-decoration text-emphasis text-indent
-text-justify text-outline text-shadow text-transform text-wrap top transform
+position presentation-level
+
+quotes
+
+resize rest rest-after rest-before richness right rotation rotation-point
+ruby-align ruby-overhang ruby-position ruby-span
+
+size speak speak-header speak-numeral speak-punctuation speech-rate src
+stress string-set
+
+table-layout target target-name target-new target-position text-align
+text-align-last text-decoration text-emphasis text-indent text-justify
+text-outline text-shadow text-transform text-wrap top transform
 transform-origin transition transition-delay transition-duration
-transition-property transition-timing-function unicode-bidi unicode-range
+transition-property transition-timing-function
+
+unicode-bidi unicode-range
+
 vertical-align visibility voice-balance voice-duration voice-family
 voice-pitch voice-range voice-rate voice-stress voice-volume volume
-white-space widows width word-break word-spacing word-wrap z-index'''
+
+white-space widows width word-break word-spacing word-wrap
+
+z-index
+
+'''  # Do Not compact this string, new lines are used to Group up stuff.
 
 
 ###############################################################################
 # CSS minify
 
 
-def _compile_props(props_text):
+def _compile_props(props_text, grouped=False):
     """Take a list of props and prepare them."""
     props = []
     for line_of_props in props_text.strip().lower().splitlines():
         props += line_of_props.split(" ")
     props = filter(lambda line: not line.startswith('#'), props)
+    if not grouped:
+        props = list(filter(None, props))
+        return props, [0]*len(props)
     final_props, groups, g_id = [], [], 0
     for prop in props:
         if prop.strip():
@@ -191,10 +232,13 @@ def _prioritify(line_buffer, pgs):
 
 def _props_grouper(props, pgs):
     """Return groups for properties."""
+    log.debug("Grouping all CSS / SCSS Properties.")
     if not props:
         return props
-    props = [_
-             if _.strip().endswith(";") else _.rstrip() + ";\n" for _ in props]
+    props = sorted([
+        _ if _.strip().endswith(";")
+        and not _.strip().endswith("*/") and not _.strip().endswith("/*")
+        else _.rstrip() + ";\n" for _ in props])
     props_pg = zip(map(lambda prop: _prioritify(prop, pgs), props), props)
     props_pg = sorted(props_pg, key=lambda item: item[0][1])
     props_by_groups = map(
@@ -218,8 +262,8 @@ def sort_properties(css_unsorted_string):
     sort it by defined rule, and return sorted buffer if it's CSS property.
     This function depends on '_prioritify' function.
     """
-    log.debug("Alphabetically Sorting and Grouping all CSS Properties.")
-    css_pgs = _compile_props(CSS_PROPS_TEXT)
+    log.debug("Alphabetically Sorting all CSS / SCSS Properties.")
+    css_pgs = _compile_props(CSS_PROPS_TEXT, grouped=False)  # Do Not Group.
     pattern = re.compile(r'(.*?{\r?\n?)(.*?)(}.*?)|(.*)',
                          re.DOTALL + re.MULTILINE)
     matched_patterns = pattern.findall(css_unsorted_string)
