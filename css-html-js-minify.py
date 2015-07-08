@@ -1264,6 +1264,9 @@ def set_single_instance(name, single_instance=True, port=8888):
 
 def make_logger(name=str(os.getpid())):
     """Build and return a Logging Logger."""
+    log_file = os.path.join(gettempdir(), str(name).lower().strip() + ".log")
+    log.basicConfig(level=-1, filemode="w", filename=log_file,
+                    format="%(levelname)s:%(asctime)s %(message)s %(lineno)s")
     if not sys.platform.startswith("win") and sys.stderr.isatty():
         def add_color_emit_ansi(fn):
             """Add methods we need to the class."""
@@ -1305,9 +1308,6 @@ def make_logger(name=str(os.getpid())):
             log.addHandler(handler)
     else:
         log.debug("Colored Logs not supported on {0}.".format(sys.platform))
-    log_file = os.path.join(gettempdir(), str(name).lower().strip() + ".log")
-    log.basicConfig(level=-1, filemode="w", filename=log_file,
-                    format="%(levelname)s:%(asctime)s %(message)s %(lineno)s")
     log.getLogger().addHandler(log.StreamHandler(sys.stderr))
     log.debug("Logger created with Log file at: {0}.".format(log_file))
     return log
