@@ -1270,6 +1270,7 @@ def make_logger(name=str(os.getpid())):
 
 def make_post_execution_message(app=__doc__.splitlines()[0].strip()):
     """Simple Post-Execution Message with information about RAM and Time.
+
     >>> make_post_execution_message() >= 0
     True
     """
