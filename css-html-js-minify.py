@@ -1192,7 +1192,6 @@ def set_process_name_and_cpu_priority(name):
         return True
 
 
-
 def set_single_instance(name, single_instance=True, port=8888):
     """Set process name and cpu priority, return socket.socket object or None.
 
@@ -1271,20 +1270,24 @@ def make_logger(name=str(os.getpid())):
 
 def make_post_execution_message(app=__doc__.splitlines()[0].strip()):
     """Simple Post-Execution Message with information about RAM and Time.
-
     >>> make_post_execution_message() >= 0
     True
     """
     ram_use = int(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss *
                   resource.getpagesize() / 1024 / 1024 if resource else 0)
-    log.info("Total Maximum RAM Memory used: ~{0} MegaBytes.".format(ram_use))
-    log.info("Total Working Time: {0}.".format(datetime.now() - start_time))
+    ram_all = int(os.sysconf('SC_PAGE_SIZE') * os.sysconf('SC_PHYS_PAGES')
+                  / 1024 / 1024)
+    msg = "Total Maximum RAM Memory used: ~{0} of {1} MegaBytes.".format(
+        ram_use, ram_all)
+    log.info(msg)
+    if start_time and datetime:
+        log.info("Total Working Time: {0}".format(datetime.now() - start_time))
     if randint(0, 100) < 25:  # ~25% chance to see the message,dont get on logs
         print("Thanks for using this App,share your experience!{0}".format("""
         Twitter: https://twitter.com/home?status=I%20Like%20{n}!:%20{u}
         Facebook: https://www.facebook.com/share.php?u={u}&t=I%20Like%20{n}
         G+: https://plus.google.com/share?url={u}""".format(u=__url__, n=app)))
-    return ram_use
+    return msg
 
 
 def make_arguments_parser():
