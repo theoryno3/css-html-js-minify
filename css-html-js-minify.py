@@ -542,7 +542,7 @@ def condense_html_whitespace(html):
     """  # first space between tags, then empty new lines and in-between.
     log.debug("Removing unnecessary HTML White Spaces and Empty New Lines.")
     is_ok = "<textarea" not in html.lower() and "<pre" not in html.lower()
-    html = re.sub(r'>\s+<', '><', html) if is_ok else html
+    html = re.sub(r'>\s+<', '> <', html) if is_ok else html
     return re.sub(r'\s{2,}|[\r\n]', ' ', html) if is_ok else html.strip()
 
 
