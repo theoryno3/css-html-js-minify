@@ -379,7 +379,7 @@ def normalize_rgb_colors_to_hex(css):
 def condense_zero_units(css):
     """Replace `0(px, em, %, etc)` with `0`."""
     log.debug("Condensing all zeroes on values.")
-    return re.sub(r"([\s:])(0)(px|em|%|in|cm|mm|pc|pt|ex|rem)", r"\1\2", css)
+    return re.sub(r"([\s:])(0)(px|em|%|in|q|ch|cm|mm|pc|pt|ex|rem|s|ms|deg|grad|rad|turn|vw|vh|vmin|vmax)", r"\1\2", css)
 
 
 def condense_multidimensional_zeros(css):
