@@ -203,9 +203,9 @@ z-index
 
 def _compile_props(props_text, grouped=False):
     """Take a list of props and prepare them."""
-    props = []
-    for line_of_props in props_text.strip().lower().splitlines():
-        props += line_of_props.split(" ")
+    props, prefixes = [], "-webkit-,-khtml-,-epub-,-moz-,-ms-,-o-,".split(",")
+    for propline in props_text.strip().lower().splitlines():
+        props += [pre + pro for pro in propline.split(" ") for pre in prefixes]
     props = filter(lambda line: not line.startswith('#'), props)
     if not grouped:
         props = list(filter(None, props))
@@ -228,8 +228,6 @@ def _prioritify(line_of_css, css_props_text_as_list):
         if css_property.lower() == line_of_css.split(":")[0].lower().strip():
             priority_integer = sorted_css_properties.index(css_property)
             group_integer = groups_by_alphabetic_order[priority_integer]
-            log.debug("Line of CSS: '{0}', Priority for Sorting: #{1}.".format(
-                line_of_css[:80].strip(), priority_integer))
             break
     return (priority_integer, group_integer)
 
@@ -466,7 +464,7 @@ def condense_xtra_named_colors(css):
     """Condense named color values to shorter replacement using HEX."""
     log.debug("Condensing extended named color values.")
     for k, v in iter(tuple(EXTENDED_NAMED_COLORS.items())):
-        same_color_but_rgb = 'rgb({},{},{})'.format(v[0], v[1], v[2])
+        same_color_but_rgb = 'rgb({0},{1},{2})'.format(v[0], v[1], v[2])
         if len(k) > len(same_color_but_rgb):
             css = css.replace(k, same_color_but_rgb)
     return css
