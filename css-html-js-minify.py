@@ -34,13 +34,10 @@ try:
     from subprocess import getoutput
     from shutil import disk_usage
     from io import StringIO  # pure-Python StringIO supports unicode.
-except ImportError:
-    request = getoutput = disk_usage = None
-    from StringIO import StringIO  # lint:ok
-try:
     import resource  # windows dont have resource
 except ImportError:
-    resource = None
+    request = getoutput = disk_usage = resource = None
+    from StringIO import StringIO  # lint:ok
 
 
 __version__ = '1.2.2'
@@ -568,10 +565,9 @@ def condense_script(html):
     '<script> </script><p>a b c'
     """  # May look silly but Emmet does this and is wrong.
     log.debug("Condensing HTML Script JS tags.")
-    html = html.replace('<script type="text/javascript">', '<script>')
-    html = html.replace("<style type='text/javascript'>", '<script>')
-    html = html.replace("<style type=text/javascript>", '<script>')
-    return html
+    return html.replace('<script type="text/javascript">', '<script>').replace(
+        "<style type='text/javascript'>", '<script>').replace(
+            "<style type=text/javascript>", '<script>')
 
 
 def clean_unneeded_html_tags(html):
@@ -581,15 +577,13 @@ def clean_unneeded_html_tags(html):
     'abc'
     """
     log.debug("Removing unnecessary optional HTML tags.")
-    for tag_to_remove in (  # May look silly but Emmet does this and is wrong.
-        '</area>', '</base>', '<body>', '</body>', '</br>', '</col>',
-        '</colgroup>', '</dd>', '</dt>', '<head>', '</head>', '</hr>',
-        '<html>', '</html>', '</img>', '</input>', '</li>', '</link>',
-        '</meta>', '</option>', '</p>', '</param>', '<tbody>', '</tbody>',
-        '</td>', '</tfoot>', '</th>', '</thead>', '</tr>', '</basefont>',
-            '</isindex>', '</param>'):
+    for tag_to_remove in ("""</area> </base> <body> </body> </br> </col>
+        </colgroup> </dd> </dt> <head> </head> </hr> <html> </html> </img>
+        </input> </li> </link> </meta> </option> </param> <tbody> </tbody>
+        </td> </tfoot> </th> </thead> </tr> </basefont> </isindex> </param>
+        """.split()):
             html = html.replace(tag_to_remove, '')
-    return html
+    return html  # May look silly but Emmet does this and is wrong.
 
 
 def remove_html_comments(html):
@@ -932,12 +926,10 @@ class JavascriptMinify(object):
 
 def walkdir_to_filelist(where, target, omit):
     """Perform full walk of where, gather full path of all files."""
-    log.debug("""Recursively Scanning {}, searching for {}, and ignoring {}.
-    """.format(where, target, omit))
-    return tuple([os.path.join(root, f) for root, d, files in os.walk(where)
-                  for f in files if not f.startswith('.')  # ignore hidden
-                  and not f.endswith(omit)  # not process processed file
-                  and f.endswith(target)])  # only compress target files
+    log.debug("Scan {},searching {},ignoring {}".format(where, target, omit))
+    return tuple([os.path.join(r, f) for r, d, fs in os.walk(where)
+                  for f in fs if not f.startswith('.') and not f.endswith(omit)
+                  and f.endswith(target)])  # only target files,no hidden files
 
 
 def process_multiple_files(file_path):
@@ -1094,12 +1086,11 @@ def process_single_js_file(js_file_path):
 
 def check_for_updates():
     """Method to check for updates from Git repo versus this version."""
-    this_version = str(open(__file__, "r", encoding="utf-8-sig").read())
     last_version = str(request.urlopen(__source__).read().decode("utf8"))
-    if this_version != last_version:
-        log.warning("Theres new Version available!,Update from " + __source__)
+    if str(open(__file__).read()) != last_version:
+        log.warning("Theres new Version available!, Update from " + __source__)
     else:
-        log.info("No new updates!, You have the latest version of this app.")
+        log.info("No new updates!,You have the lastest version of this app.")
 
 
 def only_on_py3(boolean_argument=True):
@@ -1241,11 +1232,7 @@ def set_process_name_and_cpu_priority(name):
 
 
 def set_single_instance(name, single_instance=True, port=8888):
-    """Set process name and cpu priority, return socket.socket object or None.
-
-    >>> isinstance(set_single_instance("test"), socket.socket)
-    True
-    """
+    """Set process name and cpu priority,return socket.socket object or None"""
     __lock = None
     if single_instance:
         try:  # Single instance app ~crossplatform, uses udp socket.
@@ -1259,17 +1246,12 @@ def set_single_instance(name, single_instance=True, port=8888):
         except socket.error as e:
             log.warning(e)
         else:
-            log.info("Socket Lock for Single Instance: {}.".format(__lock))
-    else:  # if multiple instance want to touch same file bad things can happen
-        log.warning("Multiple instance on same file can cause Race Condition.")
+            log.info("Socket Lock for Single Instance: {0}.".format(__lock))
     return __lock
 
 
 def make_logger(name=str(os.getpid())):
     """Build and return a Logging Logger."""
-    log_file = os.path.join(gettempdir(), str(name).lower().strip() + ".log")
-    log.basicConfig(level=-1, filemode="w", filename=log_file,
-                    format="%(levelname)s:%(asctime)s %(message)s %(lineno)s")
     if not sys.platform.startswith("win") and sys.stderr.isatty():
         def add_color_emit_ansi(fn):
             """Add methods we need to the class."""
@@ -1300,41 +1282,35 @@ def make_logger(name=str(os.getpid())):
                     print(reason)  # Do not use log here.
                 return fn(*new_args)
             return new
-        # all non-Windows platforms support ANSI Colors so we use them
         log.StreamHandler.emit = add_color_emit_ansi(log.StreamHandler.emit)
-        a = "/dev/log" if sys.platform.startswith("lin") else "/var/run/syslog"
-        try:  # try to Hook Up the SysLog Server if Any.
-            handler = log.handlers.SysLogHandler(address=a)
-        except:  # SysLog Server not found
-            log.debug("Unix SysLog Server not found,ignored Logging to SysLog")
-        else:  # SysLog Server found, log to it.
-            log.addHandler(handler)
-    else:
-        log.debug("Colored Logs not supported on {0}.".format(sys.platform))
+    log_file = os.path.join(gettempdir(), str(name).lower().strip() + ".log")
+    log.basicConfig(level=-1, filemode="w", filename=log_file)
     log.getLogger().addHandler(log.StreamHandler(sys.stderr))
+    adrs = "/dev/log" if sys.platform.startswith("lin") else "/var/run/syslog"
+    try:
+        handler = log.handlers.SysLogHandler(address=adrs)
+    except:
+        log.debug("Unix SysLog Server not found, ignored Logging to SysLog.")
+    else:
+        log.getLogger().addHandler(handler)
     log.debug("Logger created with Log file at: {0}.".format(log_file))
     return log
 
 
 def make_post_execution_message(app=__doc__.splitlines()[0].strip()):
-    """Simple Post-Execution Message with information about RAM and Time.
-
-    >>> make_post_execution_message() >= 0
-    True
-    """
+    """Simple Post-Execution Message with information about RAM and Time."""
     ram_use, ram_all = 0, 0
     if sys.platform.startswith("linux"):
-        ram_use = int(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss *
+        use = int(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss *
                     resource.getpagesize() / 1024 / 1024 if resource else 0)
-        ram_all = int(os.sysconf('SC_PAGE_SIZE') * os.sysconf('SC_PHYS_PAGES')
+        al = int(os.sysconf('SC_PAGE_SIZE') * os.sysconf('SC_PHYS_PAGES')
                       / 1024 / 1024 if hasattr(os, "sysconf") else 0)
-    msg = "Total Maximum RAM Memory used: ~{0} of {1} MegaBytes.".format(
-        ram_use, ram_all)
+    msg = "Total Maximum RAM Memory used: ~{0} of {1}MegaBytes".format(use, al)
     log.info(msg)
     if start_time and datetime:
         log.info("Total Working Time: {0}".format(datetime.now() - start_time))
     if randint(0, 100) < 25:  # ~25% chance to see the message,dont get on logs
-        print("Thanks for using this App,share your experience!{0}".format("""
+        print("Thanks for using this App,share your experience! {0}".format("""
         Twitter: https://twitter.com/home?status=I%20Like%20{n}!:%20{u}
         Facebook: https://www.facebook.com/share.php?u={u}&t=I%20Like%20{n}
         G+: https://plus.google.com/share?url={u}""".format(u=__url__, n=app)))
@@ -1359,14 +1335,12 @@ def make_arguments_parser():
                         help="Prefix string to prepend on output filenames.")
     parser.add_argument('--timestamp', action='store_true',
                         help="Add a Time Stamp on all CSS/JS output files.")
-    parser.add_argument('--quiet', action='store_true',
-                        help="Quiet, Silent, force disable all logging.")
+    parser.add_argument('--quiet', action='store_true', help="Quiet, Silent.")
     parser.add_argument('--obfuscate', action='store_true',
                         help="Obfuscate Javascript. JS only. (Recommended).")
     parser.add_argument('--checkupdates', action='store_true',
                         help="Check for updates from internet while running.")
-    parser.add_argument('--tests', action='store_true',
-                        help="Run all built-in Unit Tests, report and exit.")
+    parser.add_argument('--tests', action='store_true', help="Run Unit Tests.")
     parser.add_argument('--hash', action='store_true',
                         help="Add SHA1 HEX-Digest 11chars Hash to Filenames.")
     parser.add_argument('--gzip', action='store_true',
@@ -1381,8 +1355,7 @@ def make_arguments_parser():
                         help="Command to execute after run (Experimental).")
     parser.add_argument('--before', type=str,
                         help="Command to execute before run (Experimental).")
-    parser.add_argument('--watch', action='store_true',
-                        help="Re-Compress if file changes (Experimental).")
+    parser.add_argument('--watch', action='store_true', help="Watch changes.")
     parser.add_argument('--multiple', action='store_true',
                         help="Allow Multiple instances (Not Recommended).")
     parser.add_argument('--_42', action='store_true')
@@ -1403,15 +1376,12 @@ def main():
         ) or (y < r and x + r < y and x - r > 4 * r - y) else '.' for x in
             range(4 * r)) for y in range(1, 3 * r, 2)))(9) +
             "\n! ti htiw laeD ........####################........\n"[::-1])
-    if only_on_py3((args.checkupdates, request)):
-        check_for_updates()
+    check_for_updates() if args.checkupdates else log.debug("No Check Updates")
     if args.tests:
         testmod(verbose=True, report=True, exclude_empty=True)
         sys.exit(0)
-    if only_on_py3((args.before, getoutput)):
-        log.info(getoutput(str(args.before)))
-    if args and only_on_py3(args.quiet):
-        log.disable(log.CRITICAL)
+    log.disable(log.CRITICAL) if args.quiet else log.debug("Max Logging ON")
+    log.info(__doc__ + __version__)
     check_working_folder(os.path.dirname(args.fullpath))
     # Work based on if argument is file or folder, folder is slower.
     if os.path.isfile(args.fullpath) and args.fullpath.endswith(".css"):
@@ -1445,8 +1415,7 @@ def main():
         sys.exit(1)
     if only_on_py3((args.after, getoutput)):
         log.info(getoutput(str(args.after)))
-    log.info('-' * 80)
-    log.info('Files Processed: {}.'.format(list_of_files))
+    log.info('\n {0} \n Files Processed: {1}.'.format('-' * 80, list_of_files))
     log.info('Number of Files Processed: {}.'.format(
         len(list_of_files) if isinstance(list_of_files, tuple) else 1))
     make_post_execution_message()
