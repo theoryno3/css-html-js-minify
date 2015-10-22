@@ -115,22 +115,25 @@ azimuth
 
 backface-visibility background background-blend-mode background-attachment
 background-clip background-color background-image background-origin
-background-position background-repeat background-size baseline-shift
-bikeshedding bookmark-label bookmark-level bookmark-state bookmark-target
-border border-bottom border-bottom-color border-bottom-left-radius
-border-bottom-right-radius border-bottom-style border-bottom-width
-border-collapse border-color border-image border-image-outset
+background-position background-position-block background-position-inline
+background-position-x background-position-y background-repeat background-size
+baseline-shift bikeshedding bookmark-label bookmark-level bookmark-state
+bookmark-target border border-bottom border-bottom-color
+border-bottom-left-radius border-bottom-parts border-bottom-right-radius
+border-bottom-style border-bottom-width border-clip border-clip-top
+border-clip-right border-clip-bottom border-clip-left border-collapse
+border-color border-corner-shape border-image border-image-outset
 border-image-repeat border-image-slice border-image-source border-image-width
-border-left border-left-color border-left-style border-left-width border-radius
-border-right border-right-color border-right-style border-right-width
+border-left border-left-color border-left-style border-left-parts
+border-left-width border-limit border-parts border-radius border-right
+border-right-color border-right-style border-right-width border-right-parts
 border-spacing border-style border-top border-top-color border-top-left-radius
-border-top-right-radius border-top-style border-top-width border-width bottom
-box-decoration-break box-shadow box-sizing
-
-caption-side clear clip color column-count column-fill column-gap column-rule
+border-top-parts border-top-right-radius border-top-style border-top-width
+border-width bottom box-decoration-break box-shadow box-sizing caption-side
+clear clip color column-count column-fill column-gap column-rule
 column-rule-color column-rule-style column-rule-width column-span column-width
-columns content counter-increment counter-reset cue cue-after cue-before
-cursor
+columns content counter-increment counter-reset corners corner-shape
+cue cue-after cue-before cursor
 
 direction display drop-initial-after-adjust drop-initial-after-align
 drop-initial-before-adjust drop-initial-before-align drop-initial-size
@@ -378,8 +381,8 @@ def normalize_rgb_colors_to_hex(css):
 def condense_zero_units(css):
     """Replace `0(px, em, %, etc)` with `0`."""
     log.debug("Condensing all zeroes on values.")
-    return re.sub(r"([\s:])(0)(px|em|%|in|q|ch|cm|mm|pc|pt|ex|rem|s|ms"
-                  r"|deg|grad|rad|turn|vw|vh|vmin|vmax)", r"\1\2", css)
+    return re.sub(r"([\s:])(0)(px|em|%|in|q|ch|cm|mm|pc|pt|ex|rem|s|ms|"
+                  r"deg|grad|rad|turn|vw|vh|vmin|vmax|fr)", r"\1\2", css)
 
 
 def condense_multidimensional_zeros(css):
