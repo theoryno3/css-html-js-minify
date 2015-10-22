@@ -140,10 +140,13 @@ drop-initial-value
 
 elevation empty-cells
 
-fit fit-position float font font-family font-size font-size-adjust
-font-stretch font-style font-variant font-weight
+flex flex-basis flex-direction flex-flow flex-grow flex-shrink flex-wrap fit
+fit-position float font font-family font-size font-size-adjust font-stretch
+font-style font-variant font-weight
 
 grid-columns grid-rows
+
+justify-content
 
 hanging-punctuation height hyphenate-character hyphenate-resource hyphens
 
