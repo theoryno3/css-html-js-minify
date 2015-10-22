@@ -385,13 +385,10 @@ def condense_zero_units(css):
 def condense_multidimensional_zeros(css):
     """Replace `:0 0 0 0;`, `:0 0 0;` etc. with `:0;`."""
     log.debug("Condensing all multidimensional zeroes on values.")
-    css = css.replace(":0 0 0 0;", ":0;")
-    css = css.replace(":0 0 0;", ":0;")
-    css = css.replace(":0 0;", ":0;")
-    # Revert `background-position:0;` to the valid `background-position:0 0;`.
-    css = css.replace("background-position:0;", "background-position:0 0;")
-    css = css.replace("transform-origin:0;", "transform-origin:0 0;")
-    return css
+    return css.replace(":0 0 0 0;", ":0;").replace(
+        ":0 0 0;", ":0;").replace(":0 0;", ":0;").replace(
+            "background-position:0;", "background-position:0 0;").replace(
+                "transform-origin:0;", "transform-origin:0 0;")
 
 
 def condense_floating_points(css):
@@ -433,7 +430,7 @@ def condense_semicolons(css):
 
 def wrap_css_lines(css, line_length=80):
     """Wrap the lines of the given CSS to an approximate length."""
-    log.debug("Wrapping lines to ~{} max line lenght.".format(line_length))
+    log.debug("Wrapping lines to ~{0} max line lenght.".format(line_length))
     lines, line_start = [], 0
     for i, char in enumerate(css):
         # Its safe to break after } characters.
@@ -553,10 +550,9 @@ def condense_style(html):
     '<style>*{border:0}</style><p>a b c'
     """  # May look silly but Emmet does this and is wrong.
     log.debug("Condensing HTML Style CSS tags.")
-    html = html.replace('<style type="text/css">', '<style>')
-    html = html.replace("<style type='text/css'>", '<style>')
-    html = html.replace("<style type=text/css>", '<style>')
-    return html
+    return html.replace('<style type="text/css">', '<style>').replace(
+        "<style type='text/css'>", '<style>').replace(
+            "<style type=text/css>", '<style>')
 
 
 def condense_script(html):
@@ -674,7 +670,7 @@ def js_minify(js):
 
 def force_single_line_js(js):
     """Force Javascript to a single line, even if need to add semicolon."""
-    log.debug("Forcing JS from ~{} to 1 Line.".format(len(js.splitlines())))
+    log.debug("Forcing JS from ~{0} to 1 Line.".format(len(js.splitlines())))
     return ";".join(js.splitlines()) if len(js.splitlines()) > 1 else js
 
 
@@ -945,7 +941,7 @@ def process_multiple_files(file_path):
                 sleep(60)
             else:
                 previous = actual
-                log.debug("Modification detected on {}.".format(file_path))
+                log.debug("Modification detected on {0}.".format(file_path))
                 check_working_folder(os.path.dirname(file_path))
                 if file_path.endswith(".css"):
                     process_single_css_file(file_path)
@@ -985,7 +981,7 @@ def prefixer_extensioner(file_path, old, new, file_content=None):
 
 def process_single_css_file(css_file_path):
     """Process a single CSS file."""
-    log.info("Processing CSS file: {}.".format(css_file_path))
+    log.info("Processing CSS file: {0}.".format(css_file_path))
     global args
     try:  # Python3
         with open(css_file_path, encoding="utf-8-sig") as css_file:
@@ -997,7 +993,7 @@ def process_single_css_file(css_file_path):
     minified_css = css_minify(original_css, wrap=args.wrap,
                               comments=args.comments, sort=args.sort)
     if args.timestamp:
-        taim = "/* {} */ ".format(datetime.now().isoformat()[:-7].lower())
+        taim = "/* {0} */ ".format(datetime.now().isoformat()[:-7].lower())
         minified_css = taim + minified_css
     min_css_file_path = prefixer_extensioner(
         css_file_path, ".css", ".css" if args.overwrite else ".min.css",
@@ -1019,12 +1015,12 @@ def process_single_css_file(css_file_path):
         if only_on_py3(args.gzip):
             with gzip.open(gz_file_path, "w") as output_gz:
                 output_gz.write(minified_css)
-    log.debug("OUTPUT: Writing CSS Minified {}.".format(min_css_file_path))
+    log.debug("OUTPUT: Writing CSS Minified {0}.".format(min_css_file_path))
 
 
 def process_single_html_file(html_file_path):
     """Process a single HTML file."""
-    log.info("Processing HTML file: {}.".format(html_file_path))
+    log.info("Processing HTML file: {0}.".format(html_file_path))
     try:  # Python3
         with open(html_file_path, encoding="utf-8-sig") as html_file:
             minified_html = html_minify(html_file.read(),
@@ -1033,7 +1029,7 @@ def process_single_html_file(html_file_path):
         with open(html_file_path) as html_file:
             minified_html = html_minify(html_file.read(),
                                         comments=only_on_py3(args.comments))
-    log.debug("INPUT: Reading HTML file {}.".format(html_file_path))
+    log.debug("INPUT: Reading HTML file {0}.".format(html_file_path))
     html_file_path = prefixer_extensioner(
         html_file_path, ".html" if args.overwrite else ".htm", ".html")
     try:  # Python3
@@ -1042,19 +1038,19 @@ def process_single_html_file(html_file_path):
     except:  # Python2
         with open(html_file_path, "w") as output_file:
             output_file.write(minified_html)
-    log.debug("OUTPUT: Writing HTML Minified {}.".format(html_file_path))
+    log.debug("OUTPUT: Writing HTML Minified {0}.".format(html_file_path))
 
 
 def process_single_js_file(js_file_path):
     """Process a single JS file."""
-    log.info("Processing JS file: {}.".format(js_file_path))
+    log.info("Processing JS file: {0}.".format(js_file_path))
     try:  # Python3
         with open(js_file_path, encoding="utf-8-sig") as js_file:
             original_js = js_file.read()
     except:  # Python2
         with open(js_file_path) as js_file:
             original_js = js_file.read()
-    log.debug("INPUT: Reading JS file {}.".format(js_file_path))
+    log.debug("INPUT: Reading JS file {0}.".format(js_file_path))
     if args.obfuscate:  # with obfuscation
         minified_js = simple_replacer_js(js_minify(js_minify2(original_js)))
     else:  # without obfuscation
@@ -1082,7 +1078,7 @@ def process_single_js_file(js_file_path):
         if only_on_py3(args.gzip):
             with gzip.open(gz_file_path, "w") as output_gz:
                 output_gz.write(minified_js)
-    log.debug("OUTPUT: Writing JS Minified {}.".format(min_js_file_path))
+    log.debug("OUTPUT: Writing JS Minified {0}.".format(min_js_file_path))
 
 
 def check_for_updates():
