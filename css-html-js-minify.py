@@ -4,8 +4,7 @@
 
 """CSS-HTML-JS-Minify.
 
-StandAlone Async single-file cross-platform no-dependencies
-Unicode-ready Python3-ready Minifier for the Web.
+StandAlone Async single-file cross-platform no-dependency Minifier for the Web.
 """
 
 
@@ -44,7 +43,7 @@ except ImportError:
     resource = None
 
 
-__version__ = '1.2.0'
+__version__ = '1.2.2'
 __license__ = 'GPLv3+ LGPLv3+'
 __author__ = 'Juan Carlos'
 __email__ = 'juancarlospaco@gmail.com'
@@ -59,21 +58,20 @@ EXTENDED_NAMED_COLORS, start_time = {  # 'Color Name String': (R, G, B)
     'brown': (165, 42, 42), 'burlywood': (222, 184, 135),
     'chartreuse': (127, 255, 0), 'chocolate': (210, 105, 30),
     'coral': (255, 127, 80), 'cornsilk': (255, 248, 220),
-    'crimson': (220, 20, 60), 'cyan': (0, 255, 255),
-    'darkcyan': (0, 139, 139), 'darkgoldenrod': (184, 134, 11),
-    'darkgray': (169, 169, 169), 'darkgreen': (0, 100, 0),
-    'darkgrey': (169, 169, 169), 'darkkhaki': (189, 183, 107),
-    'darkmagenta': (139, 0, 139), 'darkolivegreen': (85, 107, 47),
-    'darkorange': (255, 140, 0), 'darkorchid': (153, 50, 204),
-    'darkred': (139, 0, 0), 'darksalmon': (233, 150, 122),
-    'darkseagreen': (143, 188, 143), 'darkslategray': (47, 79, 79),
-    'darkslategrey': (47, 79, 79), 'darkturquoise': (0, 206, 209),
-    'darkviolet': (148, 0, 211), 'deeppink': (255, 20, 147),
-    'dimgray': (105, 105, 105), 'dimgrey': (105, 105, 105),
-    'firebrick': (178, 34, 34), 'forestgreen': (34, 139, 34),
-    'gainsboro': (220, 220, 220), 'gold': (255, 215, 0),
-    'goldenrod': (218, 165, 32), 'gray': (128, 128, 128),
-    'green': (0, 128, 0), 'grey': (128, 128, 128),
+    'crimson': (220, 20, 60), 'cyan': (0, 255, 255), 'darkcyan': (0, 139, 139),
+    'darkgoldenrod': (184, 134, 11), 'darkgray': (169, 169, 169),
+    'darkgreen': (0, 100, 0), 'darkgrey': (169, 169, 169),
+    'darkkhaki': (189, 183, 107), 'darkmagenta': (139, 0, 139),
+    'darkolivegreen': (85, 107, 47), 'darkorange': (255, 140, 0),
+    'darkorchid': (153, 50, 204), 'darkred': (139, 0, 0),
+    'darksalmon': (233, 150, 122), 'darkseagreen': (143, 188, 143),
+    'darkslategray': (47, 79, 79), 'darkslategrey': (47, 79, 79),
+    'darkturquoise': (0, 206, 209), 'darkviolet': (148, 0, 211),
+    'deeppink': (255, 20, 147), 'dimgray': (105, 105, 105),
+    'dimgrey': (105, 105, 105), 'firebrick': (178, 34, 34),
+    'forestgreen': (34, 139, 34), 'gainsboro': (220, 220, 220),
+    'gold': (255, 215, 0), 'goldenrod': (218, 165, 32),
+    'gray': (128, 128, 128), 'green': (0, 128, 0), 'grey': (128, 128, 128),
     'honeydew': (240, 255, 240), 'hotpink': (255, 105, 180),
     'indianred': (205, 92, 92), 'indigo': (75, 0, 130),
     'ivory': (255, 255, 240), 'khaki': (240, 230, 140),
@@ -117,17 +115,17 @@ animation-direction animation-duration animation-iteration-count
 animation-name animation-play-state animation-timing-function appearance
 azimuth
 
-backface-visibility background background-attachment background-clip
-background-color background-image background-origin background-position
-background-repeat background-size baseline-shift bikeshedding bookmark-label
-bookmark-level bookmark-state bookmark-target border border-bottom
-border-bottom-color border-bottom-left-radius border-bottom-right-radius
-border-bottom-style border-bottom-width border-collapse border-color
-border-image border-image-outset border-image-repeat border-image-slice
-border-image-source border-image-width border-left border-left-color
-border-left-style border-left-width border-radius border-right
-border-right-color border-right-style border-right-width border-spacing
-border-style border-top border-top-color border-top-left-radius
+backface-visibility background background-blend-mode background-attachment
+background-clip background-color background-image background-origin
+background-position background-repeat background-size baseline-shift
+bikeshedding bookmark-label bookmark-level bookmark-state bookmark-target
+border border-bottom border-bottom-color border-bottom-left-radius
+border-bottom-right-radius border-bottom-style border-bottom-width
+border-collapse border-color border-image border-image-outset
+border-image-repeat border-image-slice border-image-source border-image-width
+border-left border-left-color border-left-style border-left-width border-radius
+border-right border-right-color border-right-style border-right-width
+border-spacing border-style border-top border-top-color border-top-left-radius
 border-top-right-radius border-top-style border-top-width border-width bottom
 box-decoration-break box-shadow box-sizing
 
