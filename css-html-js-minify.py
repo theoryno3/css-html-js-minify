@@ -41,7 +41,7 @@ except ImportError:
     from StringIO import StringIO  # lint:ok
 
 
-__version__ = '1.2.2'
+__version__ = '1.4.0'
 __license__ = 'GPLv3+ LGPLv3+'
 __author__ = 'Juan Carlos'
 __email__ = 'juancarlospaco@gmail.com'
@@ -217,7 +217,7 @@ def _compile_props(props_text, grouped=False):
             groups.append(g_id)
         else:
             g_id += 1
-    return (final_props, groups)
+    return final_props, groups
 
 
 def _prioritify(line_of_css, css_props_text_as_list):
@@ -229,17 +229,17 @@ def _prioritify(line_of_css, css_props_text_as_list):
             priority_integer = sorted_css_properties.index(css_property)
             group_integer = groups_by_alphabetic_order[priority_integer]
             break
-    return (priority_integer, group_integer)
+    return priority_integer, group_integer
 
 
 def _props_grouper(props, pgs):
     """Return groups for properties."""
     if not props:
         return props
-    #props = sorted([
-        #_ if _.strip().endswith(";")
-        #and not _.strip().endswith("*/") and not _.strip().endswith("/*")
-        #else _.rstrip() + ";\n" for _ in props])
+    # props = sorted([
+        # _ if _.strip().endswith(";")
+        # and not _.strip().endswith("*/") and not _.strip().endswith("/*")
+        # else _.rstrip() + ";\n" for _ in props])
     props_pg = zip(map(lambda prop: _prioritify(prop, pgs), props), props)
     props_pg = sorted(props_pg, key=lambda item: item[0][1])
     props_by_groups = map(
@@ -269,13 +269,13 @@ def sort_properties(css_unsorted_string):
                          re.DOTALL + re.MULTILINE)
     matched_patterns = pattern.findall(css_unsorted_string)
     sorted_patterns, sorted_buffer = [], css_unsorted_string
-    RE_prop = re.compile(r'((?:.*?)(?:;)(?:.*?\n)|(?:.*))',
+    re_prop = re.compile(r'((?:.*?)(?:;)(?:.*?\n)|(?:.*))',
                          re.DOTALL + re.MULTILINE)
     if len(matched_patterns) != 0:
         for matched_groups in matched_patterns:
             sorted_patterns += matched_groups[0].splitlines(True)
             props = map(lambda line: line.lstrip('\n'),
-                        RE_prop.findall(matched_groups[1]))
+                        re_prop.findall(matched_groups[1]))
             props = list(filter(lambda line: line.strip('\n '), props))
             props = _props_grouper(props, css_pgs)
             sorted_patterns += props
@@ -403,7 +403,7 @@ def condense_hex_colors(css):
     log.debug("Condensing all hexadecimal color values.")
     regex = re.compile(
         r"""([^\"'=\s])(\s*)#([0-9a-f])([0-9a-f])([0-9a-f])"""
-        + r"([0-9a-f])([0-9a-f])([0-9a-f])", re.I | re.S)
+        r"""([0-9a-f])([0-9a-f])([0-9a-f])""", re.I | re.S)
     match = regex.search(css)
     while match:
         first = match.group(3) + match.group(5) + match.group(7)
@@ -579,7 +579,7 @@ def clean_unneeded_html_tags(html):
         </colgroup> </dd> </dt> <head> </head> </hr> <html> </html> </img>
         </input> </li> </link> </meta> </option> </param> <tbody> </tbody>
         </td> </tfoot> </th> </thead> </tr> </basefont> </isindex> </param>
-        """.split()):
+            """.split()):
             html = html.replace(tag_to_remove, '')
     return html  # May look silly but Emmet does this and is wrong.
 
@@ -743,7 +743,7 @@ class NamesGenerator:
         """
         try:
             e = self.pool[self.i]
-            self.i = self.i + 1
+            self.i += 1
         except IndexError:
             if not hasattr(self, 'j'):
                 self.j = 0
@@ -926,8 +926,9 @@ def walkdir_to_filelist(where, target, omit):
     """Perform full walk of where, gather full path of all files."""
     log.debug("Scan {},searching {},ignoring {}".format(where, target, omit))
     return tuple([os.path.join(r, f) for r, d, fs in os.walk(where)
-                  for f in fs if not f.startswith('.') and not f.endswith(omit)
-                  and f.endswith(target)])  # only target files,no hidden files
+                  for f in fs if not f.startswith('.') and
+                  not f.endswith(omit) and
+                  f.endswith(target)])  # only target files,no hidden files
 
 
 def process_multiple_files(file_path):
@@ -987,7 +988,7 @@ def process_single_css_file(css_file_path):
     try:  # Python3
         with open(css_file_path, encoding="utf-8-sig") as css_file:
             original_css = css_file.read()
-    except:  # Python2
+    except Exception:  # Python2
         with open(css_file_path) as css_file:
             original_css = css_file.read()
     log.debug("INPUT: Reading CSS file {}.".format(css_file_path))
@@ -1010,7 +1011,7 @@ def process_single_css_file(css_file_path):
         if only_on_py3(args.gzip):
             with gzip.open(gz_file_path, "wt", encoding="utf-8") as output_gz:
                 output_gz.write(minified_css)
-    except:
+    except Exception:
         with open(min_css_file_path, "w") as output_file:
             output_file.write(minified_css)
         if only_on_py3(args.gzip):
@@ -1026,7 +1027,7 @@ def process_single_html_file(html_file_path):
         with open(html_file_path, encoding="utf-8-sig") as html_file:
             minified_html = html_minify(html_file.read(),
                                         comments=only_on_py3(args.comments))
-    except:  # Python2
+    except Exception:  # Python2
         with open(html_file_path) as html_file:
             minified_html = html_minify(html_file.read(),
                                         comments=only_on_py3(args.comments))
@@ -1036,7 +1037,7 @@ def process_single_html_file(html_file_path):
     try:  # Python3
         with open(html_file_path, "w", encoding="utf-8") as output_file:
             output_file.write(minified_html)
-    except:  # Python2
+    except Exception:  # Python2
         with open(html_file_path, "w") as output_file:
             output_file.write(minified_html)
     log.debug("OUTPUT: Writing HTML Minified {0}.".format(html_file_path))
@@ -1048,7 +1049,7 @@ def process_single_js_file(js_file_path):
     try:  # Python3
         with open(js_file_path, encoding="utf-8-sig") as js_file:
             original_js = js_file.read()
-    except:  # Python2
+    except Exception:  # Python2
         with open(js_file_path) as js_file:
             original_js = js_file.read()
     log.debug("INPUT: Reading JS file {0}.".format(js_file_path))
@@ -1073,7 +1074,7 @@ def process_single_js_file(js_file_path):
         if only_on_py3(args.gzip):
             with gzip.open(gz_file_path, "wt", encoding="utf-8") as output_gz:
                 output_gz.write(minified_js)
-    except:  # Python2
+    except Exception:  # Python2
         with open(min_js_file_path, "w") as output_file:
             output_file.write(minified_js)
         if only_on_py3(args.gzip):
@@ -1114,7 +1115,7 @@ def check_working_folder(folder_to_check=os.path.expanduser("~")):
     folder_to_check = os.path.abspath(folder_to_check)  # See Bug #20 on WinOS
     log.debug("Checking the Working Folder: '{0}'".format(folder_to_check))
     # What if folder is not a string.
-    if not isinstance(folder_to_check, str) :
+    if not isinstance(folder_to_check, str):
         log.critical("Folder {0} is not String type!.".format(folder_to_check))
         return False
     elif os.path.isfile(folder_to_check):
@@ -1247,7 +1248,7 @@ def make_logger(name=str(os.getpid())):
     adrs = "/dev/log" if sys.platform.startswith("lin") else "/var/run/syslog"
     try:
         handler = log.handlers.SysLogHandler(address=adrs)
-    except:
+    except Exception:
         log.debug("Unix SysLog Server not found, ignored Logging to SysLog.")
     else:
         log.getLogger().addHandler(handler)
@@ -1342,7 +1343,7 @@ def main():
     log.info(__doc__ + __version__)
     check_working_folder(os.path.dirname(args.fullpath))
     if os.path.isfile(args.fullpath) and args.fullpath.endswith(".css"):
-        log.info("Target is a CSS File.")  #  Work based on if argument is
+        log.info("Target is a CSS File.")  # Work based on if argument is
         list_of_files = str(args.fullpath)  # file or folder, folder is slower.
         process_single_css_file(args.fullpath)
     elif os.path.isfile(args.fullpath) and args.fullpath.endswith(
