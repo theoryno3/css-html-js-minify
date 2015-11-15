@@ -35,10 +35,13 @@ try:
     from subprocess import getoutput
     from shutil import disk_usage
     from io import StringIO  # pure-Python StringIO supports unicode.
+except ImportError:
+    request = getoutput = disk_usage = None
+    from StringIO import StringIO  # lint:ok
+try:
     import resource  # windows dont have resource
 except ImportError:
-    request = getoutput = disk_usage = resource = None
-    from StringIO import StringIO  # lint:ok
+    resource = None
 
 
 __version__ = '1.4.0'
@@ -129,8 +132,9 @@ border-left-width border-limit border-parts border-radius border-right
 border-right-color border-right-style border-right-width border-right-parts
 border-spacing border-style border-top border-top-color border-top-left-radius
 border-top-parts border-top-right-radius border-top-style border-top-width
-border-width bottom box-decoration-break box-shadow box-sizing caption-side
-clear clip color column-count column-fill column-gap column-rule
+border-width bottom box-decoration-break box-shadow box-sizing
+
+caption-side clear clip color column-count column-fill column-gap column-rule
 column-rule-color column-rule-style column-rule-width column-span column-width
 columns content counter-increment counter-reset corners corner-shape
 cue cue-after cue-before cursor
