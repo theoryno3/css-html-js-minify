@@ -8,6 +8,7 @@
 
 - **StandAlone Async single-file cross-platform no-dependencies Unicode-ready Python3-ready Minifier for the Web.**
 
+https://pypi.python.org/pypi/css-html-js-minify
 
 ```shell
 css-html-js-minify.py --help
