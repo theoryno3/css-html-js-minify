@@ -82,7 +82,7 @@ set_single_instance("css-html-js-minify")  # AutoMagically set Single Instance
 make_config("css-html-js-minify")  # AutoMagically make a JSON-based Config
 
 
-EXTENDED_NAMED_COLORS, start_time = {  # 'Color Name String': (R, G, B)
+EXTENDED_NAMED_COLORS = {  # 'Color Name String': (R, G, B)
     'azure': (240, 255, 255), 'beige': (245, 245, 220),
     'bisque': (255, 228, 196), 'blanchedalmond': (255, 235, 205),
     'brown': (165, 42, 42), 'burlywood': (222, 184, 135),
@@ -135,7 +135,7 @@ EXTENDED_NAMED_COLORS, start_time = {  # 'Color Name String': (R, G, B)
     'springgreen': (0, 255, 127), 'teal': (0, 128, 128),
     'thistle': (216, 191, 216), 'tomato': (255, 99, 71),
     'turquoise': (64, 224, 208), 'violet': (238, 130, 238),
-    'wheat': (245, 222, 179)}, datetime.now()
+    'wheat': (245, 222, 179)}
 
 
 CSS_PROPS_TEXT = '''
