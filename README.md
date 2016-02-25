@@ -87,7 +87,7 @@ runs.
 ![screenshot](https://raw.githubusercontent.com/juancarlospaco/css-html-js-minify/master/windows-css-html-js-compressor.jpg "MS Windows 32bit/64bit Python2/Python3")
 
 
-# Usage:
+# Command-line usage:
 
 ```bash
 css-html-js-minify.py file.htm
@@ -99,6 +99,27 @@ css-html-js-minify.py file.js
 css-html-js-minify.py /project/static/
 ```
 
+# Python code usage (py2.7 or py3.4+)
+
+```python
+from css_html_js_minify import process_single_html_file, process_single_js_file, process_single_css_file, html_minify, js_minify, css_minify
+
+process_single_html_file('test.htm', overwrite=False)
+# 'test.html'
+process_single_js_file('test.js', overwrite=False)
+# 'test.min.js'
+process_single_css_file('test.css', overwrite=False)
+# 'test.min.css'
+
+html_minify('  <p>yolo<a  href="/" >o </a >     <!-- hello --></p>')
+# '<p>yolo<a href="/" >o </a > </p>'
+js_minify('var i = 1; i += 2 ;\n alert( "hello  "  ); //hi')
+# 'var i=1;i+=2;alert("hello  ");'
+css_minify('body {width: 50px;}\np {margin-top: 1em;/* hi */  }', comments=False)
+# '@charset utf-8;body{width:50px}p{margin-top:1em}'
+```
+
+The optional arguments that these functions take are almost the same as the command-line flags; check the list above (just use add_hash instead of hash).
 
 # Install permanently on the system:
 
@@ -126,14 +147,12 @@ css-html-js-minify
 
 # Why?:
 
-- **Why another Compressor ?**, theres lots of Compressor for Web files outthere!; *Or maybe not ?*.
-- Lots work inside DJango/Flask only, or Frameworks of PHP/Java/Ruby, or can Not process whole folders.
-- This project is the big brother of [another project that does the inverse, a Beautifier for the Web.](https://github.com/juancarlospaco/css-html-prettify#css-html-prettify)
+- **Why another Compressor ?**, there are lots of compressors for web files out there!; *Or maybe not ?*.
+- Many of them only work inside Django/Flask, or frameworks of PHP/Java/Ruby, or can not process whole folders.
+- This project is the big brother of another project that does the inverse, a [Beautifier for the Web.](https://github.com/juancarlospaco/css-html-prettify#css-html-prettify)
 
 **Input CSS:**
 ```css
-
-
 /*!
  * preserve commment
  */
@@ -158,7 +177,6 @@ css-html-js-minify
     background-color: #FFFFFF;
     background-image: url("data:image/jpeg;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs=");
 ;}
-
 ;;
 
 ```
@@ -178,9 +196,9 @@ css-html-js-minify
 
 # Migration:
 
-- Too keep things simple [KISS](http://en.wikipedia.org/wiki/KISS_principle), the human readable indented commented hackable HTML is keep as `*.htm` and the Compressed Production-ready as `*.html`. This is inspired from JavaScript/CSS `*.min.js` and `*.min.css`. [We didnt "invent" this file extension.](http://en.wikipedia.org/wiki/HTM)
+To keep things simple [KISS](http://en.wikipedia.org/wiki/KISS_principle), the human readable indented commented hackable HTML is kept as `*.htm` and the compressed production-ready as `*.html`. This is inspired from JavaScript/CSS `*.min.js` and `*.min.css`. [We didn't "invent" this file extension.](http://en.wikipedia.org/wiki/HTM)
 
-To Migrate from tipical file extension HTML to HTM, which is the exactly same, you can run this:
+To migrate from typical file extension HTML to HTM, which is the exactly same, you can run this:
 
 ```shell
 find . -name "*.html" -exec rename "s/.html/.htm/" "{}" \;
@@ -191,13 +209,13 @@ This will make a copy of all `*.html` renaming them as `*.htm` recursively from 
 
 # Requisites:
 
-- [Python 3.x](https://www.python.org "Python Homepage") *(or Python 2.x, or PyPy 2.x, or PyPy 3.x, or Python Nightly)*
+- [Python 3.x](https://www.python.org "Python Homepage") *(or Python 2.x, PyPy 2.x or PyPy 3.x)*
 
 
 # Coding Style Guide:
 
 - Lint, [PEP-8](https://www.python.org/dev/peps/pep-0008), [PEP-257](https://www.python.org/dev/peps/pep-0257), [PyLama](https://github.com/klen/pylama#-pylama), [iSort](https://github.com/timothycrosley/isort) must Pass Ok. `pip install pep8 pep257 pylama isort`
-- If theres any kind of Tests, they must Pass Ok, if theres no Tests, its ok, if Tests provided, is even better.
+- If there are any kind of tests, they must pass. No tests is also acceptable, but having tests is better.
 
 
 # Contributors:

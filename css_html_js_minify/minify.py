@@ -7,7 +7,6 @@
 StandAlone Async single-file cross-platform no-dependency Minifier for the Web.
 """
 
-import gzip
 import itertools
 import logging as log
 import signal
@@ -35,6 +34,7 @@ from hashlib import sha1
 from shutil import make_archive, rmtree
 from tempfile import gettempdir
 from css_html_js_minify import __version__, __url__, __source__
+from functools import partial
 
 try:
     from urllib import request
@@ -1401,10 +1401,12 @@ def js_minify(js):
 ##############################################################################
 
 
-def process_multiple_files(file_path):
+def process_multiple_files(file_path, watch=False, wrap=False, timestamp=False,
+        comments=False, sort=False, overwrite=False, gzip=False, prefix='',
+        add_hash=False):
     """Process multiple CSS, JS, HTML files with multiprocessing."""
     log.debug("Process {} is Compressing {}.".format(os.getpid(), file_path))
-    if args.watch:
+    if watch:
         previous = int(os.stat(file_path).st_mtime)
         log.info("Process {} is Watching {}.".format(os.getpid(), file_path))
         while True:
@@ -1416,21 +1418,29 @@ def process_multiple_files(file_path):
                 log.debug("Modification detected on {0}.".format(file_path))
                 check_working_folder(os.path.dirname(file_path))
                 if file_path.endswith(".css"):
-                    process_single_css_file(file_path)
+                    process_single_css_file(file_path, wrap=wrap, timestamp=timestamp,
+                        comments=comments, sort=sort, overwrite=overwrite, gzip=gzip,
+                        prefix=prefix, add_hash=add_hash)
                 elif file_path.endswith(".js"):
-                    process_single_js_file(file_path)
+                    process_single_js_file(file_path, timestamp=timestamp,
+                        overwrite=overwrite, gzip=gzip)
                 else:
-                    process_single_html_file(file_path)
+                    process_single_html_file(file_path, comments=comments,
+                        overwrite=overwrite, prefix=prefix, add_hash=add_hash)
     else:
         if file_path.endswith(".css"):
-            process_single_css_file(file_path)
+            process_single_css_file(file_path, wrap=wrap, timestamp=timestamp,
+                comments=comments, sort=sort, overwrite=overwrite, gzip=gzip,
+                prefix=prefix, add_hash=add_hash)
         elif file_path.endswith(".js"):
-            process_single_js_file(file_path)
+            process_single_js_file(file_path, timestamp=timestamp,
+                overwrite=overwrite, gzip=gzip)
         else:
-            process_single_html_file(file_path)
+            process_single_html_file(file_path, comments=comments,
+                overwrite=overwrite, prefix=prefix, add_hash=add_hash)
 
 
-def prefixer_extensioner(file_path, old, new, file_content=None):
+def prefixer_extensioner(file_path, old, new, file_content=None, prefix='', add_hash=False):
     """Take a file path and safely preppend a prefix and change extension.
 
     This is needed because filepath.replace('.foo', '.bar') sometimes may
@@ -1439,11 +1449,11 @@ def prefixer_extensioner(file_path, old, new, file_content=None):
     '/tmp/test.min.js'
     """
     log.debug("Prepending '{}' Prefix to {}.".format(new.upper(), file_path))
-    global args
+    # global args
     extension = os.path.splitext(file_path)[1].lower().replace(old, new)
     filenames = os.path.splitext(os.path.basename(file_path))[0]
-    filenames = args.prefix + filenames if args.prefix else filenames
-    if args.hash and file_content:  # http://stackoverflow.com/a/25568916
+    filenames = prefix + filenames if prefix else filenames
+    if add_hash and file_content:  # http://stackoverflow.com/a/25568916
         filenames += "-" + sha1(file_content.encode("utf-8")).hexdigest()[:11]
         log.debug("Appending SHA1 HEX-Digest Hash to '{}'.".format(file_path))
     dir_names = os.path.dirname(file_path)
@@ -1451,72 +1461,84 @@ def prefixer_extensioner(file_path, old, new, file_content=None):
     return file_path
 
 
-def process_single_css_file(css_file_path):
+def process_single_css_file(css_file_path, wrap=False, timestamp=False,
+        comments=False, sort=False, overwrite=False, gzip=False,
+        prefix='', add_hash=False):
     """Process a single CSS file."""
     log.info("Processing CSS file: {0}.".format(css_file_path))
-    global args
+    # global args
     with open(css_file_path, **open_utf8sig_kw) as css_file:
         original_css = css_file.read()
     log.debug("INPUT: Reading CSS file {}.".format(css_file_path))
-    minified_css = css_minify(original_css, wrap=args.wrap,
-                              comments=args.comments, sort=args.sort)
-    if args.timestamp:
+    minified_css = css_minify(original_css, wrap=wrap,
+                              comments=comments, sort=sort)
+    if timestamp:
         taim = "/* {0} */ ".format(datetime.now().isoformat()[:-7].lower())
         minified_css = taim + minified_css
     min_css_file_path = prefixer_extensioner(
-        css_file_path, ".css", ".css" if args.overwrite else ".min.css",
-        original_css)
-    if only_on_py3(args.gzip):
+        css_file_path, ".css", ".css" if overwrite else ".min.css",
+        original_css, prefix=prefix, add_hash=add_hash)
+    if only_on_py3(gzip):
         gz_file_path = prefixer_extensioner(
             css_file_path, ".css",
-            ".css.gz" if args.overwrite else ".min.css.gz", original_css)
+            ".css.gz" if overwrite else ".min.css.gz", original_css,
+            prefix=prefix, add_hash=add_hash)
         log.debug("OUTPUT: Writing gZIP CSS Minified {}.".format(gz_file_path))
     with open(min_css_file_path, "w", **open_utf8_kw) as output_file:
         output_file.write(minified_css)
-    if only_on_py3(args.gzip):
+    if only_on_py3(gzip):
         with gzip.open(gz_file_path, "wt", **open_utf8_kw) as output_gz:
             output_gz.write(minified_css)
     log.debug("OUTPUT: Writing CSS Minified {0}.".format(min_css_file_path))
+    return min_css_file_path
 
 
-def process_single_html_file(html_file_path):
+def process_single_html_file(html_file_path, comments=False,
+        overwrite=False, prefix='', add_hash=False):
     """Process a single HTML file."""
     log.info("Processing HTML file: {0}.".format(html_file_path))
     with open(html_file_path, **open_utf8sig_kw) as html_file:
         minified_html = html_minify(html_file.read(),
-        comments=only_on_py3(args.comments))
+        comments=only_on_py3(comments))
     log.debug("INPUT: Reading HTML file {0}.".format(html_file_path))
     html_file_path = prefixer_extensioner(
-        html_file_path, ".html" if args.overwrite else ".htm", ".html")
+        html_file_path, ".html" if overwrite else ".htm", ".html",
+        prefix=prefix, add_hash=add_hash)
     with open(html_file_path, "w", **open_utf8_kw) as output_file:
         output_file.write(minified_html)
     log.debug("OUTPUT: Writing HTML Minified {0}.".format(html_file_path))
+    return html_file_path
 
 
-def process_single_js_file(js_file_path):
+#todo wrap=False, timestamp=False,
+#         comments=False, sort=False, overwrite=False, gzip=False,
+#         prefix='', add_hash=False
+def process_single_js_file(js_file_path, timestamp=False,
+        overwrite=False, gzip=False):
     """Process a single JS file."""
     log.info("Processing JS file: {0}.".format(js_file_path))
     with open(js_file_path, **open_utf8sig_kw) as js_file:
         original_js = js_file.read()
     log.debug("INPUT: Reading JS file {0}.".format(js_file_path))
     minified_js = js_minify(original_js)
-    if args.timestamp:
+    if timestamp:
         taim = "/* {} */ ".format(datetime.now().isoformat()[:-7].lower())
         minified_js = taim + minified_js
     min_js_file_path = prefixer_extensioner(
-        js_file_path, ".js", ".js" if args.overwrite else ".min.js",
+        js_file_path, ".js", ".js" if overwrite else ".min.js",
         original_js)
-    if only_on_py3(args.gzip):
+    if only_on_py3(gzip):
         gz_file_path = prefixer_extensioner(
-            js_file_path, ".js", ".js.gz" if args.overwrite else ".min.js.gz",
+            js_file_path, ".js", ".js.gz" if overwrite else ".min.js.gz",
             original_js)
         log.debug("OUTPUT: Writing gZIP JS Minified {}.".format(gz_file_path))
     with open(min_js_file_path, "w", **open_utf8_kw) as output_file:
         output_file.write(minified_js)
-    if only_on_py3(args.gzip):
+    if only_on_py3(gzip):
         with gzip.open(gz_file_path, "wt", **open_utf8_kw) as output_gz:
             output_gz.write(minified_js)
     log.debug("OUTPUT: Writing JS Minified {0}.".format(min_js_file_path))
+    return min_js_file_path
 
 
 def only_on_py3(boolean_argument=True):
@@ -1572,8 +1594,8 @@ def make_arguments_parser():
     parser.add_argument('--watch', action='store_true', help="Watch changes.")
     parser.add_argument('--multiple', action='store_true',
                         help="Allow Multiple instances (Not Recommended).")
-    global args
-    args = parser.parse_args()
+    # global args
+    return parser.parse_args()
 
 
 def prepare():
@@ -1586,7 +1608,7 @@ def prepare():
 
 def main():
     """Main Loop."""
-    make_arguments_parser()
+    args = make_arguments_parser()
     check_for_updates() if args.checkupdates else log.debug("No Check Updates")
     if args.tests:
         testmod(verbose=True, report=True, exclude_empty=True)
@@ -1597,16 +1619,20 @@ def main():
     if os.path.isfile(args.fullpath) and args.fullpath.endswith(".css"):
         log.info("Target is a CSS File.")  # Work based on if argument is
         list_of_files = str(args.fullpath)  # file or folder, folder is slower.
-        process_single_css_file(args.fullpath)
+        process_single_css_file(args.fullpath, wrap=args.wrap, timestamp=args.timestamp,
+            comments=args.comments, sort=args.sort, overwrite=args.overwrite, gzip=args.gzip,
+            prefix=args.prefix, add_hash=args.hash)
     elif os.path.isfile(args.fullpath) and args.fullpath.endswith(
             ".html" if args.overwrite else ".htm"):
         log.info("Target is HTML File.")
         list_of_files = str(args.fullpath)
-        process_single_html_file(args.fullpath)
+        process_single_html_file(args.fullpath, comments=args.comments,
+            overwrite=args.overwrite, prefix=args.prefix, add_hash=args.hash)
     elif os.path.isfile(args.fullpath) and args.fullpath.endswith(".js"):
         log.info("Target is a JS File.")
         list_of_files = str(args.fullpath)
-        process_single_js_file(args.fullpath)
+        process_single_js_file(args.fullpath, timestamp=args.timestamp,
+            overwrite=args.overwrite, gzip=args.gzip)
     elif os.path.isdir(args.fullpath):
         log.info("Target is a Folder with CSS, HTML, JS files !.")
         log.warning("Processing a whole Folder may take some time...")
@@ -1616,7 +1642,11 @@ def main():
             (".min.css", ".min.js", ".htm" if args.overwrite else ".html"))
         log.info('Total Maximum CPUs used: ~{0} Cores.'.format(cpu_count()))
         pool = Pool(cpu_count())  # Multiprocessing Async
-        pool.map_async(process_multiple_files, list_of_files)
+        pool.map_async(partial(process_multiple_files, watch=args.watch,
+                wrap=args.wrap, timestamp=args.timestamp, comments=args.comments,
+                sort=args.sort, overwrite=args.overwrite, gzip=args.gzip,
+                prefix=args.prefix, add_hash=args.hash),
+            list_of_files)
         pool.close()
         pool.join()
     else:
