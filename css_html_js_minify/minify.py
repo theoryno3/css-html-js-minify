@@ -7,34 +7,34 @@
 StandAlone Async single-file cross-platform no-dependency Minifier for the Web.
 """
 
-import functools
-import signal
-import stat
-from json import dumps
-from shutil import make_archive, rmtree
-from subprocess import call
-from webbrowser import open_new_tab
 import gzip
 import itertools
 import logging as log
-import os
-import re
+import signal
 import socket
 import sys
 import traceback
 from argparse import ArgumentParser
-from copy import copy
 from ctypes import byref, cdll, create_string_buffer
 from datetime import datetime
 from doctest import testmod
 from getpass import getuser
-from hashlib import sha1
+from json import dumps
 from json import loads
 from multiprocessing import cpu_count, Pool
 from platform import platform, python_version
-from tempfile import gettempdir
+from subprocess import call
 from time import sleep
-
+from webbrowser import open_new_tab
+import functools
+import os
+import re
+import stat
+from copy import copy
+from hashlib import sha1
+from shutil import make_archive, rmtree
+from tempfile import gettempdir
+from css_html_js_minify import __version__, __url__, __source__
 
 try:
     from urllib import request
@@ -49,27 +49,16 @@ try:
 except ImportError:
     resource = None
 
-
-__version__ = '1.9.0'
-__license__ = 'GPLv3+ LGPLv3+'
-__author__ = 'Juan Carlos'
-__email__ = 'juancarlospaco@gmail.com'
-__url__ = 'https://github.com/juancarlospaco/css-html-js-minify'
-__source__ = ('https://raw.githubusercontent.com/juancarlospaco/'
-              'css-html-js-minify/master/css-html-js-minify.py')
-
+try:
+    import resource
+except ImportError:
+    resource = None  # MS Window dont have resource
 
 if sys.version_info.major == 3:
     open_utf8_kw = dict(encoding="utf-8")
     open_utf8sig_kw = dict(encoding="utf-8-sig")
 else:
     open_utf8_kw = open_utf8sig_kw = dict()
-
-try:
-    import resource
-except ImportError:
-    resource = None  # MS Window dont have resource
-
 
 CONFIG = None
 start_time = datetime.now()

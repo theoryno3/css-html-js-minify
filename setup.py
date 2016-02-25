@@ -35,7 +35,7 @@ import re
 import sys
 from copy import copy
 from tempfile import gettempdir
-
+import css_html_js_minify
 from setuptools import setup
 
 
@@ -154,8 +154,7 @@ def find_this(search, source=SOURCE):
     if not search or not source:
         log.warning("Not found on source: {what}.".format(what=search))
         return ""
-    return str(re.compile(r".*__{what}__ = '(.*?)'".format(
-        what=search), re.S).match(source).group(1)).strip().replace("'", "")
+    return getattr(css_html_js_minify, '__{what}__'.format(what=search))
 
 
 def parse_requirements(path=REQUIREMENTS_FILE):
@@ -199,31 +198,32 @@ log.info("Starting build of setuptools.setup().")
 
 setup(
 
-    name="css-html-js-minify",
-    version=find_this("version"),
+    name='css-html-js-minify',
+    version=find_this('version'),
 
     description=DESCRIPTION,
     long_description=DESCRIPTION,
 
-    url=find_this("url"),
-    license=find_this("license"),
+    url=find_this('url'),
+    license=find_this('license'),
 
-    author=find_this("author"),
-    author_email=find_this("email"),
-    maintainer=find_this("author"),
-    maintainer_email=find_this("email"),
+    author=find_this('author'),
+    author_email=find_this('email'),
+    maintainer=find_this('author'),
+    maintainer_email=find_this('email'),
 
+    packages=['css_html_js_minify',],
     include_package_data=True,
     zip_safe=True,
 
-    extras_require={"pip": ["pip"]},
+    extras_require={'pip': ['pip']},
     tests_require=['pip'],
     requires=['pip'],
 
     install_requires=install_requires_list,
     dependency_links=dependency_links_list,
 
-    scripts=["css-html-js-minify.py"],
+    scripts=['css-html-js-minify.py'],
 
     keywords=['CSS', 'HTML', 'JS', 'Compressor', 'CSS3', 'HTML5', 'Web',
               'Javascript', 'Minifier', 'Minify', 'Uglify', 'Obfuscator'],
@@ -257,6 +257,7 @@ setup(
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
 
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
@@ -267,4 +268,4 @@ setup(
 )
 
 
-log.info("Finished build of setuptools.setup().")
+log.info('Finished build of setuptools.setup().')
