@@ -50,7 +50,7 @@ except ImportError:
     resource = None
 
 
-__version__ = '1.8.0'
+__version__ = '1.9.0'
 __license__ = 'GPLv3+ LGPLv3+'
 __author__ = 'Juan Carlos'
 __email__ = 'juancarlospaco@gmail.com'
@@ -58,6 +58,12 @@ __url__ = 'https://github.com/juancarlospaco/css-html-js-minify'
 __source__ = ('https://raw.githubusercontent.com/juancarlospaco/'
               'css-html-js-minify/master/css-html-js-minify.py')
 
+
+if sys.version_info.major == 3:
+    open_utf8_kw = dict(encoding="utf-8")
+    open_utf8sig_kw = dict(encoding="utf-8-sig")
+else:
+    open_utf8_kw = open_utf8sig_kw = dict()
 
 try:
     import resource
@@ -270,14 +276,14 @@ def add_desktop_files(app, desktop_file_content):
     autostart_file = os.path.join(config_dir, app + ".desktop")
     if os.path.isdir(config_dir) and not os.path.isfile(autostart_file):
         log.info("Writing Auto-Start file: " + autostart_file)
-        with open(autostart_file, "w", encoding="utf-8") as start_file:
+        with open(autostart_file, "w", **open_utf8_kw) as start_file:
             start_file.write(desktop_file_content)
     apps_dir = os.path.join(os.path.expanduser("~"),
                             ".local", "share", "applications")
     desktop_file = os.path.join(apps_dir, app + ".desktop")
     if os.path.isdir(apps_dir) and not os.path.isfile(desktop_file):
         log.info("Writing Desktop Launcher file: " + desktop_file)
-        with open(desktop_file, "w", encoding="utf-8") as desktop_file_obj:
+        with open(desktop_file, "w", **open_utf8_kw) as desktop_file_obj:
             desktop_file_obj.write(desktop_file_content)
     return desktop_file
 
@@ -419,9 +425,9 @@ def make_config(app):
     config_file = os.path.join(get_or_set_config_folder(app), "config.json")
     if not os.path.isfile(config_file):
         log.debug("Creating a new JSON Config file: " + config_file)
-        with open(config_file, "w", encoding="utf-8") as config_object:
+        with open(config_file, "w", **open_utf8_kw) as config_object:
             config_object.write("{}\n")
-    with open(config_file, "r", encoding="utf-8") as config_object:
+    with open(config_file, "r", **open_utf8_kw) as config_object:
         log.debug("Reading JSON Config file: " + config_file)
         CONFIG = loads(config_object.read().strip())
 
@@ -435,7 +441,7 @@ def view_config(app):
 def autosave_config(app):
     log.debug("Cleaning up, AutoSaving Configs and Shutting Down...")
     config_file = os.path.join(get_or_set_config_folder(app), "config.json")
-    with open(config_file, "w", encoding="utf-8") as config_object:
+    with open(config_file, "w", **open_utf8_kw) as config_object:
         config_object.write(json_pretty(CONFIG))
 
 
@@ -1466,12 +1472,8 @@ def process_single_css_file(css_file_path):
     """Process a single CSS file."""
     log.info("Processing CSS file: {0}.".format(css_file_path))
     global args
-    try:  # Python3
-        with open(css_file_path, encoding="utf-8-sig") as css_file:
-            original_css = css_file.read()
-    except Exception:  # Python2
-        with open(css_file_path) as css_file:
-            original_css = css_file.read()
+    with open(css_file_path, **open_utf8sig_kw) as css_file:
+        original_css = css_file.read()
     log.debug("INPUT: Reading CSS file {}.".format(css_file_path))
     minified_css = css_minify(original_css, wrap=args.wrap,
                               comments=args.comments, sort=args.sort)
@@ -1486,53 +1488,33 @@ def process_single_css_file(css_file_path):
             css_file_path, ".css",
             ".css.gz" if args.overwrite else ".min.css.gz", original_css)
         log.debug("OUTPUT: Writing gZIP CSS Minified {}.".format(gz_file_path))
-    try:
-        with open(min_css_file_path, "w", encoding="utf-8") as output_file:
-            output_file.write(minified_css)
-        if only_on_py3(args.gzip):
-            with gzip.open(gz_file_path, "wt", encoding="utf-8") as output_gz:
-                output_gz.write(minified_css)
-    except Exception:
-        with open(min_css_file_path, "w") as output_file:
-            output_file.write(minified_css)
-        if only_on_py3(args.gzip):
-            with gzip.open(gz_file_path, "w") as output_gz:
-                output_gz.write(minified_css)
+    with open(min_css_file_path, "w", **open_utf8_kw) as output_file:
+        output_file.write(minified_css)
+    if only_on_py3(args.gzip):
+        with gzip.open(gz_file_path, "wt", **open_utf8_kw) as output_gz:
+            output_gz.write(minified_css)
     log.debug("OUTPUT: Writing CSS Minified {0}.".format(min_css_file_path))
 
 
 def process_single_html_file(html_file_path):
     """Process a single HTML file."""
     log.info("Processing HTML file: {0}.".format(html_file_path))
-    try:  # Python3
-        with open(html_file_path, encoding="utf-8-sig") as html_file:
-            minified_html = html_minify(html_file.read(),
-                                        comments=only_on_py3(args.comments))
-    except Exception:  # Python2
-        with open(html_file_path) as html_file:
-            minified_html = html_minify(html_file.read(),
-                                        comments=only_on_py3(args.comments))
+    with open(html_file_path, **open_utf8sig_kw) as html_file:
+        minified_html = html_minify(html_file.read(),
+        comments=only_on_py3(args.comments))
     log.debug("INPUT: Reading HTML file {0}.".format(html_file_path))
     html_file_path = prefixer_extensioner(
         html_file_path, ".html" if args.overwrite else ".htm", ".html")
-    try:  # Python3
-        with open(html_file_path, "w", encoding="utf-8") as output_file:
-            output_file.write(minified_html)
-    except Exception:  # Python2
-        with open(html_file_path, "w") as output_file:
-            output_file.write(minified_html)
+    with open(html_file_path, "w", **open_utf8_kw) as output_file:
+        output_file.write(minified_html)
     log.debug("OUTPUT: Writing HTML Minified {0}.".format(html_file_path))
 
 
 def process_single_js_file(js_file_path):
     """Process a single JS file."""
     log.info("Processing JS file: {0}.".format(js_file_path))
-    try:  # Python3
-        with open(js_file_path, encoding="utf-8-sig") as js_file:
-            original_js = js_file.read()
-    except Exception:  # Python2
-        with open(js_file_path) as js_file:
-            original_js = js_file.read()
+    with open(js_file_path, **open_utf8sig_kw) as js_file:
+        original_js = js_file.read()
     log.debug("INPUT: Reading JS file {0}.".format(js_file_path))
     minified_js = minify_js(original_js)
     if args.timestamp:
@@ -1546,18 +1528,11 @@ def process_single_js_file(js_file_path):
             js_file_path, ".js", ".js.gz" if args.overwrite else ".min.js.gz",
             original_js)
         log.debug("OUTPUT: Writing gZIP JS Minified {}.".format(gz_file_path))
-    try:  # Python3
-        with open(min_js_file_path, "w", encoding="utf-8") as output_file:
-            output_file.write(minified_js)
-        if only_on_py3(args.gzip):
-            with gzip.open(gz_file_path, "wt", encoding="utf-8") as output_gz:
-                output_gz.write(minified_js)
-    except Exception:  # Python2
-        with open(min_js_file_path, "w") as output_file:
-            output_file.write(minified_js)
-        if only_on_py3(args.gzip):
-            with gzip.open(gz_file_path, "w") as output_gz:
-                output_gz.write(minified_js)
+    with open(min_js_file_path, "w", **open_utf8_kw) as output_file:
+        output_file.write(minified_js)
+    if only_on_py3(args.gzip):
+        with gzip.open(gz_file_path, "wt", **open_utf8_kw) as output_gz:
+            output_gz.write(minified_js)
     log.debug("OUTPUT: Writing JS Minified {0}.".format(min_js_file_path))
 
 
