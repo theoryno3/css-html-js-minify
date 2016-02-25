@@ -1256,7 +1256,7 @@ def simple_replacer_js(js):
         ";}", "}").replace("; ", ";").replace(" ;", ";").rstrip("\n;"))
 
 
-def js_minify(js):
+def js_minify_keep_comments(js):
     """Return a minified version of the Javascript string."""
     log.info("Compressing Javascript...")
     ins, outs = StringIO(js), StringIO()
@@ -1397,10 +1397,10 @@ class JavascriptMinify(object):
                 previous_non_space = previous
 
 
-def minify_js(js):
+def js_minify(js):
     """Minify a JavaScript string."""
     js = remove_commented_lines(js)
-    js = js_minify(js)
+    js = js_minify_keep_comments(js)
     return js.strip()
 
 
@@ -1505,7 +1505,7 @@ def process_single_js_file(js_file_path):
     with open(js_file_path, **open_utf8sig_kw) as js_file:
         original_js = js_file.read()
     log.debug("INPUT: Reading JS file {0}.".format(js_file_path))
-    minified_js = minify_js(original_js)
+    minified_js = js_minify(original_js)
     if args.timestamp:
         taim = "/* {} */ ".format(datetime.now().isoformat()[:-7].lower())
         minified_js = taim + minified_js
