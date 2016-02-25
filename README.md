@@ -119,7 +119,7 @@ css_minify('body {width: 50px;}\np {margin-top: 1em;/* hi */  }', comments=False
 # '@charset utf-8;body{width:50px}p{margin-top:1em}'
 ```
 
-The optional arguments that these functions take are almost the same as the command-line flags; check the list above (just use add_hash instead of hash).
+The optional arguments that these functions take are almost the same as the command-line flags; check the list above (just use add_hash instead of hash). Additionally, you can force a specific path for the output files using ``output_path``.
 
 # Install permanently on the system:
 

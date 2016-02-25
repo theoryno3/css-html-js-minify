@@ -1,5 +1,5 @@
 
-__version__ = '1.9.0'
+__version__ = '1.9.1'
 __license__ = 'GPLv3+ LGPLv3+'
 __author__ = 'Juan Carlos'
 __email__ = 'juancarlospaco@gmail.com'

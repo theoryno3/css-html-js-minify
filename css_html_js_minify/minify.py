@@ -1449,7 +1449,6 @@ def prefixer_extensioner(file_path, old, new, file_content=None, prefix='', add_
     '/tmp/test.min.js'
     """
     log.debug("Prepending '{}' Prefix to {}.".format(new.upper(), file_path))
-    # global args
     extension = os.path.splitext(file_path)[1].lower().replace(old, new)
     filenames = os.path.splitext(os.path.basename(file_path))[0]
     filenames = prefix + filenames if prefix else filenames
@@ -1463,10 +1462,9 @@ def prefixer_extensioner(file_path, old, new, file_content=None, prefix='', add_
 
 def process_single_css_file(css_file_path, wrap=False, timestamp=False,
         comments=False, sort=False, overwrite=False, gzip=False,
-        prefix='', add_hash=False):
+        prefix='', add_hash=False, output_path=None):
     """Process a single CSS file."""
     log.info("Processing CSS file: {0}.".format(css_file_path))
-    # global args
     with open(css_file_path, **open_utf8sig_kw) as css_file:
         original_css = css_file.read()
     log.debug("INPUT: Reading CSS file {}.".format(css_file_path))
@@ -1475,17 +1473,22 @@ def process_single_css_file(css_file_path, wrap=False, timestamp=False,
     if timestamp:
         taim = "/* {0} */ ".format(datetime.now().isoformat()[:-7].lower())
         minified_css = taim + minified_css
-    min_css_file_path = prefixer_extensioner(
-        css_file_path, ".css", ".css" if overwrite else ".min.css",
-        original_css, prefix=prefix, add_hash=add_hash)
-    if only_on_py3(gzip):
-        gz_file_path = prefixer_extensioner(
-            css_file_path, ".css",
-            ".css.gz" if overwrite else ".min.css.gz", original_css,
-            prefix=prefix, add_hash=add_hash)
-        log.debug("OUTPUT: Writing gZIP CSS Minified {}.".format(gz_file_path))
-    with open(min_css_file_path, "w", **open_utf8_kw) as output_file:
-        output_file.write(minified_css)
+    if output_path is None:
+        min_css_file_path = prefixer_extensioner(
+            css_file_path, ".css", ".css" if overwrite else ".min.css",
+            original_css, prefix=prefix, add_hash=add_hash)
+        if only_on_py3(gzip):
+            gz_file_path = prefixer_extensioner(
+                css_file_path, ".css",
+                ".css.gz" if overwrite else ".min.css.gz", original_css,
+                prefix=prefix, add_hash=add_hash)
+            log.debug("OUTPUT: Writing gZIP CSS Minified {}.".format(gz_file_path))
+    else:
+        min_css_file_path = gz_file_path = output_path
+    if not only_on_py3(gzip) or output_path is None:
+        # if a specific output path is requested, then write write only one output file
+        with open(min_css_file_path, "w", **open_utf8_kw) as output_file:
+            output_file.write(minified_css)
     if only_on_py3(gzip):
         with gzip.open(gz_file_path, "wt", **open_utf8_kw) as output_gz:
             output_gz.write(minified_css)
@@ -1494,27 +1497,27 @@ def process_single_css_file(css_file_path, wrap=False, timestamp=False,
 
 
 def process_single_html_file(html_file_path, comments=False,
-        overwrite=False, prefix='', add_hash=False):
+        overwrite=False, prefix='', add_hash=False, output_path=None):
     """Process a single HTML file."""
     log.info("Processing HTML file: {0}.".format(html_file_path))
     with open(html_file_path, **open_utf8sig_kw) as html_file:
         minified_html = html_minify(html_file.read(),
         comments=only_on_py3(comments))
     log.debug("INPUT: Reading HTML file {0}.".format(html_file_path))
-    html_file_path = prefixer_extensioner(
-        html_file_path, ".html" if overwrite else ".htm", ".html",
-        prefix=prefix, add_hash=add_hash)
+    if output_path is None:
+        html_file_path = prefixer_extensioner(
+            html_file_path, ".html" if overwrite else ".htm", ".html",
+            prefix=prefix, add_hash=add_hash)
+    else:
+        html_file_path = output_path
     with open(html_file_path, "w", **open_utf8_kw) as output_file:
         output_file.write(minified_html)
     log.debug("OUTPUT: Writing HTML Minified {0}.".format(html_file_path))
     return html_file_path
 
 
-#todo wrap=False, timestamp=False,
-#         comments=False, sort=False, overwrite=False, gzip=False,
-#         prefix='', add_hash=False
 def process_single_js_file(js_file_path, timestamp=False,
-        overwrite=False, gzip=False):
+        overwrite=False, gzip=False, output_path=None):
     """Process a single JS file."""
     log.info("Processing JS file: {0}.".format(js_file_path))
     with open(js_file_path, **open_utf8sig_kw) as js_file:
@@ -1524,16 +1527,21 @@ def process_single_js_file(js_file_path, timestamp=False,
     if timestamp:
         taim = "/* {} */ ".format(datetime.now().isoformat()[:-7].lower())
         minified_js = taim + minified_js
-    min_js_file_path = prefixer_extensioner(
-        js_file_path, ".js", ".js" if overwrite else ".min.js",
-        original_js)
-    if only_on_py3(gzip):
-        gz_file_path = prefixer_extensioner(
-            js_file_path, ".js", ".js.gz" if overwrite else ".min.js.gz",
+    if output_path is None:
+        min_js_file_path = prefixer_extensioner(
+            js_file_path, ".js", ".js" if overwrite else ".min.js",
             original_js)
-        log.debug("OUTPUT: Writing gZIP JS Minified {}.".format(gz_file_path))
-    with open(min_js_file_path, "w", **open_utf8_kw) as output_file:
-        output_file.write(minified_js)
+        if only_on_py3(gzip):
+            gz_file_path = prefixer_extensioner(
+                js_file_path, ".js", ".js.gz" if overwrite else ".min.js.gz",
+                original_js)
+            log.debug("OUTPUT: Writing gZIP JS Minified {}.".format(gz_file_path))
+    else:
+        min_js_file_path = gz_file_path = output_path
+    if not only_on_py3(gzip) or output_path is None:
+        # if a specific output path is requested, then write write only one output file
+        with open(min_js_file_path, "w", **open_utf8_kw) as output_file:
+           output_file.write(minified_js)
     if only_on_py3(gzip):
         with gzip.open(gz_file_path, "wt", **open_utf8_kw) as output_gz:
             output_gz.write(minified_js)
