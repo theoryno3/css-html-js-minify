@@ -626,12 +626,6 @@ class AtomicWriter(object):
                 rename_atomic(self.part_path, tmp_file, True)  # os.unlink()
             raise  # could not save destination file
 
-make_logger("css-html-js-minify")  # AutoMagically make a Logger Log
-make_root_check_and_encoding_debug()  # AutoMagically Check Encodings/root
-set_process_name_and_cpu_priority("css-html-js-minify")  # set Name
-set_single_instance("css-html-js-minify")  # AutoMagically set Single Instance
-make_config("css-html-js-minify")  # AutoMagically make a JSON-based Config
-
 
 EXTENDED_NAMED_COLORS = {  # 'Color Name String': (R, G, B)
     'azure': (240, 255, 255), 'beige': (245, 245, 220),
@@ -1580,6 +1574,14 @@ def make_arguments_parser():
                         help="Allow Multiple instances (Not Recommended).")
     global args
     args = parser.parse_args()
+
+
+def prepare():
+    make_logger("css-html-js-minify")  # AutoMagically make a Logger Log
+    make_root_check_and_encoding_debug()  # AutoMagically Check Encodings/root
+    set_process_name_and_cpu_priority("css-html-js-minify")  # set Name
+    set_single_instance("css-html-js-minify")  # AutoMagically set Single Instance
+    make_config("css-html-js-minify")  # AutoMagically make a JSON-based Config
 
 
 def main():
