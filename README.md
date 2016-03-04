@@ -99,7 +99,7 @@ css-html-js-minify.py file.js
 css-html-js-minify.py /project/static/
 ```
 
-# Python code usage (py2.7 or py3.4+)
+# Python code usage (py2.7+ or py3.4+)
 
 ```python
 from css_html_js_minify import process_single_html_file, process_single_js_file, process_single_css_file, html_minify, js_minify, css_minify
@@ -127,22 +127,6 @@ The optional arguments that these functions take are almost the same as the comm
 ```
 sudo pip3 install css-html-js-minify
 ```
-
-**PIP from Git:**
-```
-sudo pip3 install git+https://raw.githubusercontent.com/juancarlospaco/css-html-js-minify/master/css-html-js-minify.py
-```
-
-**WGET:**
-```
-sudo wget -O /usr/bin/css-html-js-minify https://raw.githubusercontent.com/juancarlospaco/css-html-js-minify/master/css-html-js-minify.py
-sudo chmod +x /usr/bin/css-html-js-minify
-css-html-js-minify
-```
-
-**MANUALLY:**
-
-- Save [this file](https://raw.githubusercontent.com/juancarlospaco/css-html-js-minify/master/css-html-js-minify.py) and run it with Python.
 
 
 # Why?:
@@ -196,7 +180,7 @@ css-html-js-minify
 
 # Migration:
 
-To keep things simple [KISS](http://en.wikipedia.org/wiki/KISS_principle), the human readable indented commented hackable HTML is kept as `*.htm` and the compressed production-ready as `*.html`. This is inspired from JavaScript/CSS `*.min.js` and `*.min.css`. [We didn't "invent" this file extension.](http://en.wikipedia.org/wiki/HTM)
+To keep things simple [KISS](http://en.wikipedia.org/wiki/KISS_principle), the human readable indented commented hackable HTML is kept as `*.htm` and the compressed production-ready as `*.html`. This is inspired from JavaScript/CSS `*.min.js` and `*.min.css`. [We did not "invent" this file extension.](http://en.wikipedia.org/wiki/HTM)
 
 To migrate from typical file extension HTML to HTM, which is the exactly same, you can run this:
 
@@ -222,7 +206,7 @@ This will make a copy of all `*.html` renaming them as `*.htm` recursively from 
 
 | **Hall of Fame** |
 | -------------------------------- |
-| [![](https://avatars1.githubusercontent.com/u/1189414?s=50)](https://github.com/juancarlospaco) [![](https://avatars2.githubusercontent.com/u/3127847?s=50)](https://github.com/cassiobotaro) [![](https://avatars1.githubusercontent.com/u/5056390?s=50)](https://github.com/loggerhead) [![](https://avatars3.githubusercontent.com/u/7449642?s=50)](https://github.com/skolsuper) [![](https://avatars0.githubusercontent.com/u/4732915?s=50)](https://github.com/cuducos) [![](https://avatars1.githubusercontent.com/u/517395?s=50)](https://github.com/lowks) [![](https://avatars3.githubusercontent.com/u/6242660?s=50)](https://github.com/alanvinals) [![](https://avatars2.githubusercontent.com/u/1552641?s=50)](https://github.com/JayXon) [![](https://avatars1.githubusercontent.com/u/6053065?s=50)](https://github.com/rokarc) [???](https://github.com/Omniferum) [![](https://avatars1.githubusercontent.com/u/1486592?v=3&s=50)](https://github.com/harrysouthworth)
+| [![](https://avatars1.githubusercontent.com/u/1189414?s=50)](https://github.com/juancarlospaco) [![](https://avatars2.githubusercontent.com/u/3127847?s=50)](https://github.com/cassiobotaro) [![](https://avatars1.githubusercontent.com/u/5056390?s=50)](https://github.com/loggerhead) [![](https://avatars3.githubusercontent.com/u/7449642?s=50)](https://github.com/skolsuper) [![](https://avatars0.githubusercontent.com/u/4732915?s=50)](https://github.com/cuducos) [![](https://avatars1.githubusercontent.com/u/517395?s=50)](https://github.com/lowks) [![](https://avatars3.githubusercontent.com/u/6242660?s=50)](https://github.com/alanvinals) [![](https://avatars2.githubusercontent.com/u/1552641?s=50)](https://github.com/JayXon) [![](https://avatars1.githubusercontent.com/u/6053065?s=50)](https://github.com/rokarc) [???](https://github.com/Omniferum) [![](https://avatars1.githubusercontent.com/u/1486592?v=3&s=50)](https://github.com/harrysouthworth) [![](https://avatars2.githubusercontent.com/u/6442863?v=3&s=50)](https://github.com/mverleg)
 [![](https://avatars0.githubusercontent.com/u/1102886?v=3&s=50)](https://github.com/Aeyoun) |
 
 
