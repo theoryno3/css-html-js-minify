@@ -46,10 +46,6 @@ try:
 except ImportError:
     request = getoutput = disk_usage = None
     from StringIO import StringIO  # lint:ok
-try:
-    import resource  # windows dont have resource
-except ImportError:
-    resource = None
 
 try:
     import resource
@@ -214,13 +210,14 @@ def set_single_instance(name, single_instance=True, port=8888):
 def make_post_execution_message(app=__doc__.splitlines()[0].strip()):
     """Simple Post-Execution Message with information about RAM and Time."""
     use, al = 0, 0
+    msg = None
     if sys.platform.startswith("linux"):
         use = int(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss *
                   resource.getpagesize() / 1024 / 1024 if resource else 0)
         al = int(os.sysconf('SC_PAGE_SIZE') * os.sysconf('SC_PHYS_PAGES') /
                  1024 / 1024 if hasattr(os, "sysconf") else 0)
-    msg = "Total Maximum RAM Memory used: ~{0} of {1}MegaBytes".format(use, al)
-    log.info(msg)
+        msg = "Total Maximum RAM Memory used: ~{0} of {1}MegaBytes".format(use, al)
+        log.info(msg)
     if start_time and datetime:
         log.info("Total Working Time: {0}".format(datetime.now() - start_time))
     print("Thanks for using this App,share your experience! {0}".format("""
@@ -230,7 +227,7 @@ def make_post_execution_message(app=__doc__.splitlines()[0].strip()):
     Send BitCoins !:
     https://www.coinbase.com/checkouts/c3538d335faee0c30c81672ea0223877
     """.format(u=__url__, n=app)))  # see the message, but dont get on logs.
-    return msg
+    return (msg or "No information about RAM usage available on non-linux-systems.")
 
 
 def get_or_set_config_folder(appname):
