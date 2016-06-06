@@ -7,6 +7,7 @@
 Minifier for the Web.
 """
 
+
 import atexit
 import os
 import sys
