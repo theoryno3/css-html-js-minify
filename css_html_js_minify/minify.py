@@ -243,7 +243,8 @@ def make_arguments_parser():
 
 
 def prepare():
-    make_logger("css-html-js-minify")  # AutoMagically make a Logger Log
+    global log
+    log = make_logger("css-html-js-minify")  # AutoMagically make a Logger Log
     set_terminal_title("css-html-js-minify")
     check_encoding()  # AutoMagically Check Encodings/root
     set_process_name("css-html-js-minify")  # set Name
