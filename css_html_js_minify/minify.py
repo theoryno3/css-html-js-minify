@@ -237,7 +237,7 @@ def make_arguments_parser():
     parser.add_argument('--multiple', action='store_true',
                         help="Allow Multiple instances (Not Recommended).")
     parser.add_argument('--beep', action='store_true',
-                        help="Beep sound will be play when it ends at exit.")
+                        help="Beep sound will be played when it ends at exit.")
     # global args
     return parser.parse_args()
 
