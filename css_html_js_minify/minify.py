@@ -29,10 +29,12 @@ from functools import partial
 from subprocess import getoutput
 from io import StringIO  # pure-Python StringIO supports unicode.
 
-from anglerfish import check_folder, walk2list
+from anglerfish import (check_folder, walk2list, make_post_exec_msg,
+                        make_logger, check_encoding, set_process_name,
+                        set_single_instance)
 
 
-CONFIG, start_time = None, datetime.now()
+start_time = datetime.now()
 
 
 ###############################################################################
@@ -854,7 +856,6 @@ def prepare():
     check_encoding()  # AutoMagically Check Encodings/root
     set_process_name("css-html-js-minify")  # set Name
     set_single_instance("css-html-js-minify")  # AutoMagically set Single Instance
-    make_config("css-html-js-minify")  # AutoMagically make a JSON-based Config
 
 
 def main():
