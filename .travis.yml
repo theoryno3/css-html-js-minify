@@ -6,7 +6,6 @@ language: python
 
 python:
     - 3.5
-    - pypy3
     - nightly
 
 
@@ -27,7 +26,7 @@ before_script: pyclean --verbose .
 script:
     - wget https://code.jquery.com/jquery-git2.js
     - chmod +x $TRAVIS_BUILD_DIR/css-html-js-minify.py
-    - $TRAVIS_BUILD_DIR/css-html-js-minify.py --prefix temp_ --timestamp --hash $TRAVIS_BUILD_DIR/jquery-git2.js
+    - $TRAVIS_BUILD_DIR/css-html-js-minify.py --prefix temp_ --timestamp --hash --gzip --beep $TRAVIS_BUILD_DIR/jquery-git2.js
     #- wget https://maxcdn.bootstrapcdn.com/bootstrap/latest/css/bootstrap.css
     #- $TRAVIS_BUILD_DIR/css-html-js-minify.py --prefix temp_ --timestamp --wrap --hash $TRAVIS_BUILD_DIR/bootstrap.css
     - pip install --upgrade --no-compile css-html-js-minify
