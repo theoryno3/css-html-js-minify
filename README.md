@@ -1,12 +1,12 @@
 # css-html-js-minify
 
 
-[![Travis report](https://travis-ci.org/juancarlospaco/css-html-js-minify.svg?branch=master "Travis-C.I. Testing report")](https://travis-ci.org/juancarlospaco/css-html-js-minify) [![GPL License](http://img.shields.io/badge/license-GPL-blue.svg?style=plastic)](http://opensource.org/licenses/GPL-3.0) [![LGPL License](http://img.shields.io/badge/license-LGPL-blue.svg?style=plastic)](http://opensource.org/licenses/LGPL-3.0) [![Python Version](https://img.shields.io/badge/Python-3-brightgreen.svg?style=plastic)](http://python.org) [![Join the chat at https://gitter.im/juancarlospaco/css-html-js-minify](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/juancarlospaco/css-html-js-minify?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge "Chat with Users and Developers, Get Solutions, Offer Help") [![Code Issues](http://www.quantifiedcode.com/api/v1/project/abb1afb550964afa8d1e30c82367eb24/badge.svg)](http://www.quantifiedcode.com/app/project/abb1afb550964afa8d1e30c82367eb24)
+[![Travis report](https://travis-ci.org/juancarlospaco/css-html-js-minify.svg?branch=master "Travis-C.I. Testing report")](https://travis-ci.org/juancarlospaco/css-html-js-minify) [![GPL License](http://img.shields.io/badge/license-GPL-blue.svg?style=plastic)](http://opensource.org/licenses/GPL-3.0) [![LGPL License](http://img.shields.io/badge/license-LGPL-blue.svg?style=plastic)](http://opensource.org/licenses/LGPL-3.0) [![Python Version](https://img.shields.io/badge/Python-3-brightgreen.svg?style=plastic)](http://python.org) [![Code Issues](http://www.quantifiedcode.com/api/v1/project/abb1afb550964afa8d1e30c82367eb24/badge.svg)](http://www.quantifiedcode.com/app/project/abb1afb550964afa8d1e30c82367eb24)
 
 [![Donate BitCoins](https://www.coinbase.com/assets/buttons/donation_large-5cf4f17cc2d2ae2f45b6b021ee498297409c94dcf0ba1bbf76fd5668e80b0d02.png)](https://www.coinbase.com/checkouts/c3538d335faee0c30c81672ea0223877 "Donate Bitcoins") [![Subscribe with BitCoins](https://www.coinbase.com/assets/buttons/subscription_large-11d991f628216af05156fae88a48ce25c0cb36447a265421a43a62e572af3853.png)](https://www.coinbase.com/checkouts/c3538d335faee0c30c81672ea0223877 "Subscribe with BitCoins") [![Pay with BitCoins](https://www.coinbase.com/assets/buttons/buy_now_large-6f15fa5979d25404827a7329e8a5ec332a42cf4fd73e27a2c3ccda017034e1b0.png)](https://www.coinbase.com/checkouts/c3538d335faee0c30c81672ea0223877 "Pay with BitCoins") [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif "Donate with or without Credit Card")](http://goo.gl/cB7PR)
 
 
-- **StandAlone Async single-file cross-platform no-dependencies Unicode-ready Python3-ready Minifier for the Web.**
+- **StandAlone Async cross-platform Unicode-ready Python3-ready Minifier for the Web.**
 
 https://pypi.python.org/pypi/css-html-js-minify
 
@@ -21,8 +21,7 @@ usage: css-html-js-minify.py [-h] [--version] [--wrap] [--prefix PREFIX]
                              [--multiple]
                              fullpath
 
-CSS-HTML-JS-Minify. StandAlone Async single-file cross-platform no-
-dependencies Unicode-ready Python3-ready Minifier for the Web.
+CSS-HTML-JS-Minify. StandAlone Async cross-platform Unicode-ready Python3-ready Minifier for the Web.
 
 positional arguments:
   fullpath         Full path to local file or folder.
@@ -34,11 +33,8 @@ optional arguments:
   --prefix PREFIX  Prefix string to prepend on output filenames.
   --timestamp      Add a Time Stamp on all CSS/JS output files.
   --quiet          Quiet, Silent, force disable all logging.
-  --obfuscate      Obfuscate Javascript. JS only. (Recommended).
-  --checkupdates   Check for updates from internet while running.
-  --tests          Run all built-in Unit Tests, report and exit.
   --hash           Add SHA1 HEX-Digest 11chars Hash to Filenames.
-  --gzip           GZIP Minified files as '*.gz', CSS/JS only.
+  --zipy           GZIP Minified files as '*.gz', CSS/JS only.
   --sort           Alphabetically Sort CSS Properties, CSS only.
   --comments       Keep comments, CSS/HTML only (Not Recommended)
   --overwrite      Force overwrite all in-place (Not Recommended)
@@ -46,6 +42,7 @@ optional arguments:
   --before BEFORE  Command to execute before run (Experimental).
   --watch          Re-Compress if file changes (Experimental).
   --multiple       Allow Multiple instances (Not Recommended).
+  --beep           Beep sound will be played when it ends at exit.
 
 CSS-HTML-JS-Minify: Takes a file or folder full path string and process all
 CSS/HTML/JS found. If argument is not file/folder will fail. Check Updates
@@ -60,7 +57,6 @@ runs.
 - Takes a full path to anything, a file or a folder, then parse, optimize and compress for Production.
 - If full path is a folder with multiple files it will use Async Multiprocessing.
 - Pretty-Printed colored Logging to Standard Output and Log File on OS Temporary Folder.
-- No Dependencies at all, just needs Python Standard Built-in Libs.
 - Set its own Process name and show up on Process lists.
 - Can check for updates for itself.
 - Full Unicode/UTF-8 support.
@@ -99,7 +95,7 @@ css-html-js-minify.py file.js
 css-html-js-minify.py /project/static/
 ```
 
-# Python code usage (py2.7+ or py3.4+)
+# Python code usage (py3.5+)
 
 ```python
 from css_html_js_minify import process_single_html_file, process_single_js_file, process_single_css_file, html_minify, js_minify, css_minify
@@ -194,7 +190,7 @@ This will make a copy of all `*.html` renaming them as `*.htm` recursively from 
 
 # Requisites:
 
-- [Python 3.x](https://www.python.org "Python Homepage") *(or Python 2.x, PyPy 2.x or PyPy 3.x)*
+- [Python 3.x](https://www.python.org "Python Homepage")
 
 
 # Coding Style Guide:
