@@ -17,7 +17,7 @@ os:
 before_install: pip install --upgrade pip setuptools wheel anglerfish --quiet
 
 
-install: true
+install: sudo apt-get install -y --force-yes aplay
 
 
 before_script: pyclean --verbose .
