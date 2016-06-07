@@ -7,6 +7,8 @@
 
 import re
 
+import logging as log
+
 
 __all__ = ['html_minify']
 

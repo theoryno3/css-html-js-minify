@@ -7,6 +7,8 @@
 
 from io import StringIO  # pure-Python StringIO supports unicode.
 
+import logging as log
+
 from .css_minifier import condense_semicolons
 
 
