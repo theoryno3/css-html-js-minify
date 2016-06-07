@@ -5,11 +5,7 @@ language: python
 
 
 python:
-    - 2.7
-    - 3.4
-    - 3.5-dev
-    - pypy
-#   - pypy3
+    - 3.5
     - nightly
 
 
@@ -18,7 +14,7 @@ os:
 #    - osx
 
 
-before_install: pip install --upgrade pip anglerfish --quiet
+before_install: pip install --upgrade pip setuptools wheel anglerfish --quiet
 
 
 install: true
@@ -31,10 +27,9 @@ script:
     - wget https://code.jquery.com/jquery-git2.js
     - chmod +x $TRAVIS_BUILD_DIR/css-html-js-minify.py
     - $TRAVIS_BUILD_DIR/css-html-js-minify.py --prefix temp_ --timestamp --hash $TRAVIS_BUILD_DIR/jquery-git2.js
-    - wget https://maxcdn.bootstrapcdn.com/bootstrap/latest/css/bootstrap.css
-    - $TRAVIS_BUILD_DIR/css-html-js-minify.py --prefix temp_ --timestamp --wrap --hash $TRAVIS_BUILD_DIR/bootstrap.css
+    #- wget https://maxcdn.bootstrapcdn.com/bootstrap/latest/css/bootstrap.css
+    #- $TRAVIS_BUILD_DIR/css-html-js-minify.py --prefix temp_ --timestamp --wrap --hash $TRAVIS_BUILD_DIR/bootstrap.css
     - pip install --upgrade --no-compile --allow-all-external css-html-js-minify
-    - $TRAVIS_BUILD_DIR/css-html-js-minify.py --tests true
 
 
 after_script: true
@@ -51,11 +46,6 @@ notifications:
         recipients: juancarlospaco@gmail.com
         on_success: change
         on_failure: always
-    webhooks:
-        urls: https://webhooks.gitter.im/e/790426b8e479271c1e65
-        on_success: always
-        on_failure: always
-        on_start: always
 
 
 cache: apt
