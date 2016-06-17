@@ -82,7 +82,6 @@ def parse_requirements(path=REQUIREMENTS_FILE):
     return pkgs, links
 
 
-install_requires_list, dependency_links_list = parse_requirements()
 print("Starting build of setuptools.setup().")
 
 
@@ -111,9 +110,7 @@ setup(
     zip_safe=True,
 
     requires=['anglerfish'],
-
-    install_requires=install_requires_list,
-    dependency_links=dependency_links_list,
+    install_requires=['anglerfish'],
 
     scripts=['css-html-js-minify.py'],
 
