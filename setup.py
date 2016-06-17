@@ -54,34 +54,6 @@ def find_this(search):
     return getattr(css_html_js_minify, '__{what}__'.format(what=search))
 
 
-def parse_requirements(path=REQUIREMENTS_FILE):
-    """Rudimentary parser for the requirements.txt file.
-
-    We just want to separate regular packages from links to pass them to the
-    'install_requires' and 'dependency_links' params of the 'setup()'.
-    """
-    print("Parsing Requirements from file {what}.".format(what=path))
-    pkgs, links = ["pip"], []
-    if not os.path.isfile(path):
-        return pkgs, links
-    try:
-        requirements = map(str.strip, path.splitlines())
-    except Exception as reason:
-        print(reason)
-        return pkgs, links
-    for req in requirements:
-        if not req:
-            continue
-        if 'http://' in req.lower() or 'https://' in req.lower():
-            links.append(req)
-            name, version = re.findall("\#egg=([^\-]+)-(.+$)", req)[0]
-            pkgs.append('{package}=={ver}'.format(package=name, ver=version))
-        else:
-            pkgs.append(req)
-    print("Requirements found: {what}.".format(what=(pkgs, links)))
-    return pkgs, links
-
-
 print("Starting build of setuptools.setup().")
 
 

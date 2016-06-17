@@ -31,7 +31,7 @@ from anglerfish import (check_encoding, check_folder, make_logger,
                         set_terminal_title)
 
 
-__version__ = '2.0.0'
+__version__ = '2.0.2'
 __license__ = 'GPLv3+ LGPLv3+'
 __author__ = 'Juan Carlos'
 __email__ = 'juancarlospaco@gmail.com'

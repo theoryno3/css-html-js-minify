@@ -13,7 +13,7 @@ from .minify import (process_single_html_file, process_single_js_file,
                      css_minify)
 
 
-__version__ = '2.0.0'
+__version__ = '2.0.2'
 __license__ = 'GPLv3+ LGPLv3+'
 __author__ = 'Juan Carlos'
 __email__ = 'juancarlospaco@gmail.com'
