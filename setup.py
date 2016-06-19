@@ -28,11 +28,9 @@
 
 """Setup.py for Python, as Generic as possible."""
 
-
 import os
 import re
-import css_html_js_minify
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 ##############################################################################
@@ -47,11 +45,23 @@ REQUIREMENTS_FILE = os.path.join(os.path.dirname(__file__), "requirements.txt")
 ##############################################################################
 # Dont touch below
 
+def parse_metadata(path):
+    """Parse file at 'path' and return metadata as a dictionary."""
+    metadata = {}
 
-def find_this(search):
-    """Take a string and a filename path string and return the found value."""
-    print("Searching for {what}.".format(what=search))
-    return getattr(css_html_js_minify, '__{what}__'.format(what=search))
+    with open(path) as file:
+        for line in file.readlines():
+            if line.startswith('__'):
+                line = line.strip()
+                key, value  = line.split(sep='=')
+                key = key.strip('_ ')
+                if key == 'all':
+                    continue
+                print("Getting metadata for {what}.".format(what=key))
+                if key not in metadata:
+                    metadata[key] = value.strip("' ")
+
+    return metadata
 
 
 def parse_requirements(path=REQUIREMENTS_FILE):
@@ -84,28 +94,29 @@ def parse_requirements(path=REQUIREMENTS_FILE):
 
 print("Starting build of setuptools.setup().")
 
+# Generate metadata used by setuptools.setup()
+metadata = parse_metadata('css_html_js_minify/__init__.py')
 
 ##############################################################################
 # EDIT HERE
 
-
 setup(
 
     name='css-html-js-minify',
-    version=find_this('version'),
+    version=metadata.get('version'),
 
     description=DESCRIPTION,
     long_description=DESCRIPTION,
 
-    url=find_this('url'),
-    license=find_this('license'),
+    url=metadata.get('url'),
+    license=metadata.get('license'),
 
-    author=find_this('author'),
-    author_email=find_this('email'),
-    maintainer=find_this('author'),
-    maintainer_email=find_this('email'),
+    author=metadata.get('author'),
+    author_email=metadata.get('email'),
+    maintainer=metadata.get('author'),
+    maintainer_email=metadata.get('email'),
 
-    packages=['css_html_js_minify',],
+    packages=find_packages(),
     include_package_data=True,
     zip_safe=True,
 
