@@ -4,7 +4,7 @@
 
 """CSS-HTML-JS-Minify.
 
-StandAlone Async single-file cross-platform no-dependency Minifier for the Web.
+StandAlone Async cross-platform no-dependency Minifier for the Web.
 """
 
 
