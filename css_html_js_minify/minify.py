@@ -18,7 +18,12 @@ from datetime import datetime
 from functools import partial
 from hashlib import sha1
 from multiprocessing import Pool, cpu_count
-from subprocess import getoutput
+
+try:
+  from subprocess import getoutput
+except:
+  from commands import getoutput
+  
 from time import sleep
 
 from .css_minifier import css_minify
